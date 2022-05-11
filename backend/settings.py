@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     
     'User',
     'Admin',
-    'Group',
+    'Batch',
     'Manifest',
     'Payment',
     'Student',
