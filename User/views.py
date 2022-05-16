@@ -27,4 +27,13 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = UserSerealizer
+
+@api_view(['POST'])
+def get_user(request):
+    print("==============================")
+    print('request :::::::::::::', request)
+    print('User:::::::::::::', request.user)
+    print('User Name :::::::::::::', request.user.username)
+    print('Data :::::::::::::', request.data)
+    return Response({"name": request.user.username})
     

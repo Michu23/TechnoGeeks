@@ -10,11 +10,12 @@ class Student(models.Model):
     STATUS=(
     ('Training','Training'),
     ('Placed','Placed'),
+    ('RequestedTermination','RequestedTermination'),
     ('Terminated','Terminated')
     )
     
     batch= models.ForeignKey(Batch, on_delete=models.SET_NULL,null=True)
-    status = models.CharField(max_length=10,choices=STATUS)
+    status = models.CharField(max_length=20,choices=STATUS)
     group = models.ForeignKey(Group, on_delete=models.SET_NULL,null=True)
     profile = models.OneToOneField(Profile,on_delete=models.CASCADE)
 
