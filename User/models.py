@@ -1,11 +1,23 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 
 
-class User(User):
-    is_lead = models.BooleanField(default=False)
+
+class Department(models.Model):
+    DEPARTMENT = (
+    ('Student','Student'),
+    ('Advisor','Advisor'),
+    ('Accounts','Accounts'),
+    ('Lead','Lead')
+    )
+
+    name = models.CharField(max_length=20, choices = DEPARTMENT)
+
+class User(AbstractUser):
+    department = models.ForeignKey(Department,on_delete=models.SET_NULL,null=True)
+    is_lead = models.BooleanField(default=False,null=True)
 
 class Domain(models.Model):
     name = models.CharField(max_length=20)
@@ -33,4 +45,3 @@ class Profile(models.Model):
     designation = models.CharField(max_length=20,null=True, blank=True)
     mobile = models.IntegerField(null=True, blank=True)
     govtid = models.ImageField(upload_to='images',blank=True)
-    userid=models.OneToOneField(User,on_delete=models.CASCADE)

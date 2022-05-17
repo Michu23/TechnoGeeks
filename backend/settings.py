@@ -129,9 +129,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
+
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'technogeeks',
+        'USER': 'postgres',
+        'PASSWORD': 'sersha7297',
+        'HOST': 'localhost',
+        'POST':'5432'
     }
 }
 
@@ -154,6 +159,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = "User.User" 
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/

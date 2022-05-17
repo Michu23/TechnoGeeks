@@ -1,6 +1,6 @@
 from django.db import models
 from Batch.models import Batch, Group
-from User.models import Profile
+from User.models import User, Profile
 
 # Create your models here.
 
@@ -14,6 +14,7 @@ class Student(models.Model):
     ('Terminated','Terminated')
     )
     
+    user = models.OneToOneField(User, on_delete=models.CASCADE,null=True)
     batch= models.ForeignKey(Batch, on_delete=models.SET_NULL,null=True)
     status = models.CharField(max_length=20,choices=STATUS)
     group = models.ForeignKey(Group, on_delete=models.SET_NULL,null=True)
