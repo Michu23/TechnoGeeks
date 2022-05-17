@@ -28,12 +28,38 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = UserSerealizer
 
-@api_view(['POST'])
-def get_user(request):
-    print("==============================")
-    print('request :::::::::::::', request)
-    print('User:::::::::::::', request.user)
-    print('User Name :::::::::::::', request.user.username)
-    print('Data :::::::::::::', request.data)
-    return Response({"name": request.user.username})
+# @api_view(['POST'])
+# def get_user(request):
+#     print("==============================")
+#     print('request :::::::::::::', request)
+#     print('User:::::::::::::', request.user)
+#     print('User Name :::::::::::::', request.user.username)
+#     print('Data :::::::::::::', request.data)
+#     return Response({"name": request.user.username})
     
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def createDomain(request):
+    if request.user.is_lead:
+        Domain.objects.create( name=request.data['name'] )
+        return Response({"message": "Domain created successfully"})
+    else:
+        return Response({"message": "You are not authorized to create Domain"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def deleteDomain(request):
+    if request.user.is_lead:
+        Domain.objects.filter(id=request.data['id']).delete()
+        return Response({"message": "Domain deleted successfully"})
+    else:
+        return Response({"message": "You are not authorized to delete Domain"})
+
+@api_view(['POST'])
+def updateDomain(request):
+    if request.user.is_lead:
+        Domain.objects.filter(id=request.data['id']).update(name=request.data['new_name'])
+        return Response({"message": "Domain updated successfully"})
+    else:
+        return Response({"message": "You are not authorized to update Domain"})
