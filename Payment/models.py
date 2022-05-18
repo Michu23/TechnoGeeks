@@ -23,3 +23,6 @@ class Payment(models.Model):
     cash = models.IntegerField()
     status = models.CharField(max_length=10,choices=STATUS)
     types = models.CharField(max_length=20,choices=TYPES)
+
+    def __str__(self):
+        return self.student.user.username
