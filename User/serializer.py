@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import *
+from .models import User, Domain, Profile
 from Admin.models import Advisor
 from Student.models import Student
 
@@ -38,6 +38,7 @@ class DomainSerealizer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 class ProfileSerealizer(serializers.ModelSerializer):
+    domain = DomainSerealizer()
     class Meta:
         model = Profile
         fields = '__all__'
