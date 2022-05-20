@@ -1,12 +1,17 @@
+from asyncore import write
+from datetime import timedelta
 from rest_framework import serializers
 from .models import User, Domain, Profile
 from Admin.models import Advisor
 from Student.models import Student
+from Manifest.models import Manifest, Review
+from Batch.models import Batch
 
 class UserSerealizer(serializers.ModelSerializer):
+    batch = serializers.CharField(write_only=True)
     class Meta:
         model = User
-        fields = ('id', 'username', 'password', 'email', 'is_superuser', 'is_lead', 'is_staff', 'is_student')
+        fields = ['id', 'username', 'password', 'email', 'is_superuser', 'is_lead', 'is_staff', 'is_student', 'batch']
 
     def create(self, validated_data):
         user = User.objects.create(
@@ -16,11 +21,14 @@ class UserSerealizer(serializers.ModelSerializer):
 
         if validated_data['is_superuser']:
             user.is_superuser = True
-            user.save()
-        if validated_data['is_lead']:
             user.is_lead = True
+            user.is_staff = True
             user.save()
-        if validated_data['is_staff']:
+        elif validated_data['is_lead']:
+            user.is_lead = True
+            user.is_staff = True
+            user.save()
+        elif validated_data['is_staff']:
             user.is_staff = True
             user.save()
             profile = Profile.objects.create()
@@ -29,7 +37,10 @@ class UserSerealizer(serializers.ModelSerializer):
             user.is_student = True
             user.save()
             profile = Profile.objects.create()
-            Student.objects.create(user=user, profile=profile)
+            batch = Batch.objects.get(id = validated_data['batch'])
+            student = Student.objects.create(user=user, profile=profile, batch=batch)
+            manifest = Manifest.objects.create(title = 'Week 01',student_name=student)
+            Review.objects.create(manifest=manifest, next_review=batch.created_at + timedelta(days=7))
         return user
 
 class DomainSerealizer(serializers.ModelSerializer):

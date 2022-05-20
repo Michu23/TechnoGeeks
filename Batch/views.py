@@ -9,7 +9,8 @@ from .models import *
 @permission_classes([IsAuthenticated])
 def createBatch(request):
     if request.user.is_lead:
-        Batch.objects.create( batchno=request.data['batchno'], advisor=request.data['advisor'] )
+        advisor = Advisor.objects.get(id=request.data['advisor'])
+        Batch.objects.create( batchno=request.data['batchno'], advisor=advisor )
         return Response({"message": "Batch created successfully"})
     else:
         return Response({"message": "You are not authorized to create Batch"})

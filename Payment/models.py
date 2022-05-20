@@ -17,7 +17,7 @@ class Payment(models.Model):
     ('Upfront','Upfront'),
     )
 
-    student = models.ForeignKey(Student,on_delete=models.SET_NULL,null=True)
+    student = models.ForeignKey(Student,on_delete=models.CASCADE,null=True)
     amount = models.IntegerField()
     UPI = models.IntegerField()
     cash = models.IntegerField()

@@ -41,7 +41,7 @@ class Profile(models.Model):
 
     first_name = models.CharField(max_length=20,null=True, blank=True, default='')
     last_name = models.CharField(max_length=20,null=True, blank=True, default='')
-    photo = models.ImageField(upload_to='Media/Profile',blank=True, default='Media/Profile/defaultProPic.png')
+    photo = models.ImageField(upload_to='Media/Profile',blank=True, default='Profile/defaultProPic.png')
     domain = models.ForeignKey(Domain, on_delete=models.SET_NULL,null=True, blank=True)
     dob= models.DateTimeField(null=True, blank=True)
     gender = models.CharField(max_length = 7,choices = GENDER, default = '')
