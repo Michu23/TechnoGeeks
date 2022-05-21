@@ -29,6 +29,8 @@ class Placement(models.Model):
     company = models.CharField(max_length=30,null=True, blank=True)
     location = models.CharField(max_length=20,null=True, blank=True)
     LPA= models.FloatField()
+    count = models.IntegerField(null=True)
+    date = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return self.student.user.username

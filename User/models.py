@@ -60,3 +60,18 @@ class Profile(models.Model):
             return self.advisor.user.username
         except:
             return self.student.user.username
+
+class Notification(models.Model):
+    TYPE = (
+    ('Placement','Placement'),
+    ('AdvisorChange','Advisor Change'),
+    ('BatchShift','Batch Shift'),
+    ('Termination','Termination'),
+    )
+
+    type = models.CharField(max_length=20, choices=TYPE)
+    content = models.TextField()
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.type

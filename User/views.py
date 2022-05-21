@@ -5,7 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import *
-from .serializer import UserSerealizer
+from .serializer import UserSerealizer, NotificationSerealizer#, DomainSerealizer, ProfileSerealizer
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -36,7 +36,21 @@ class RegisterView(generics.CreateAPIView):
 #     print('User Name :::::::::::::', request.user.username)
 #     print('Data :::::::::::::', request.data)
 #     return Response({"name": request.user.username})
-    
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def notification(request):
+    user = request.user
+    if user.is_lead:
+        notification = NotificationSerealizer(Notification.objects.all(), many=True)
+        datas = {'dept': 'lead', 'notification': notification.data}
+    elif user.is_staff:
+        notification = NotificationSerealizer(Notification.objects.all(), many=True)
+        datas = {'dept': 'advisor', 'notification': notification.data}
+    else:
+        notification = NotificationSerealizer(Notification.objects.exclude(type='BatchShift').exclude(type='Termination').order_by('date'), many=True)
+        datas = {'dept': 'student', 'notification': notification.data}
+    return Response(datas)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

@@ -1,7 +1,7 @@
 from asyncore import write
 from datetime import timedelta
 from rest_framework import serializers
-from .models import User, Domain, Profile
+from .models import User, Domain, Profile, Notification
 from Admin.models import Advisor
 from Student.models import Student
 from Manifest.models import Manifest, Review
@@ -52,4 +52,9 @@ class ProfileSerealizer(serializers.ModelSerializer):
     domain = DomainSerealizer()
     class Meta:
         model = Profile
+        fields = '__all__'
+        
+class NotificationSerealizer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
         fields = '__all__'
