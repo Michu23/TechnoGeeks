@@ -11,7 +11,7 @@ class UserSerealizer(serializers.ModelSerializer):
     batch = serializers.CharField(write_only=True)
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email', 'is_superuser', 'is_lead', 'is_staff', 'is_student', 'batch']
+        fields = ['id', 'username', 'password', 'email', 'is_staff', 'is_student', 'batch']
 
     def create(self, validated_data):
         user = User.objects.create(
@@ -19,16 +19,7 @@ class UserSerealizer(serializers.ModelSerializer):
             )
         user.set_password(validated_data['password'])
 
-        if validated_data['is_superuser']:
-            user.is_superuser = True
-            user.is_lead = True
-            user.is_staff = True
-            user.save()
-        elif validated_data['is_lead']:
-            user.is_lead = True
-            user.is_staff = True
-            user.save()
-        elif validated_data['is_staff']:
+        if validated_data['is_staff']:
             user.is_staff = True
             user.save()
             profile = Profile.objects.create()

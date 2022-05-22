@@ -4,8 +4,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from Admin.models import Advisor
+from Student.models import Student
 from .models import *
-from .serializer import UserSerealizer, NotificationSerealizer#, DomainSerealizer, ProfileSerealizer
+from .serializer import UserSerealizer, NotificationSerealizer, ProfileSerealizer, DomainSerealizer
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -51,6 +53,47 @@ def notification(request):
         notification = NotificationSerealizer(Notification.objects.exclude(type='BatchShift').exclude(type='Termination').order_by('date'), many=True)
         datas = {'dept': 'student', 'notification': notification.data}
     return Response(datas)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def updateProfile(request):
+    user = request.user
+    if user.is_staff:
+        profile = Profile.objects.get(advisor=Advisor.objects.get(user=user))
+    elif user.is_student:
+        profile = Profile.objects.get(student=Student.objects.get(user=user))
+    else:
+        return Response({'error': 'You are not authorized to update profile'})
+    profile.first_name = request.data['first_name']
+    profile.last_name = request.data['last_name']
+    profile.domain = Domain.objects.get(id=request.data['domain'])
+    profile.dob= request.data['dob']
+    # profile.gender = request.data['gender'] 
+    profile.address = request.data['address']
+    profile.village = request.data['village']
+    profile.education = request.data['education']
+    profile.college = request.data['college']
+    profile.experience = request.data['experience']
+    profile.company = request.data['company']
+    profile.designation = request.data['designation']
+    profile.mobile = request.data['mobile']
+    profile.save()
+    profile = ProfileSerealizer(profile)
+    return Response(profile.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def getProfile(request):
+    user = request.user
+    if user.is_staff:
+        profile = ProfileSerealizer(Profile.objects.get(advisor=Advisor.objects.get(user=user)))
+    elif user.is_student:
+        profile = ProfileSerealizer(Profile.objects.get(student=Student.objects.get(user=user)))
+    else:
+        return Response({'error': 'You are not authorized to get profile'})
+    data = profile.data
+    data['email'] = user.email
+    return Response(data)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

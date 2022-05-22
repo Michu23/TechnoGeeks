@@ -43,7 +43,7 @@ class Profile(models.Model):
     last_name = models.CharField(max_length=20,null=True, blank=True, default='')
     photo = models.ImageField(upload_to='Media/Profile',blank=True, default='Profile/defaultProPic.png')
     domain = models.ForeignKey(Domain, on_delete=models.SET_NULL,null=True, blank=True)
-    dob= models.DateTimeField(null=True, blank=True)
+    dob= models.DateField(null=True, blank=True)
     gender = models.CharField(max_length = 7,choices = GENDER, default = '')
     address = models.TextField(null=True, blank=True,max_length=100, default='')
     village = models.CharField(max_length=20,null=True, blank=True, default='')
