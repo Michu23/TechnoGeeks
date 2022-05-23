@@ -8,3 +8,9 @@ class AdvisorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Advisor
         fields = '__all__'
+
+class AdvisorHalfSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    class Meta:
+        model = Advisor
+        fields = ('id', 'username')

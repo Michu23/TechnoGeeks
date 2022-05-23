@@ -97,6 +97,15 @@ def getProfile(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+def getDomain(request):
+    if request.user.is_lead:
+        domain = DomainSerealizer(Domain.objects.all(), many=True).data
+        return Response(domain)
+    else:
+        return Response({"message": "You are not authorized to create Domain"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def createDomain(request):
     if request.user.is_lead:
         Domain.objects.create( name=request.data['name'] )
