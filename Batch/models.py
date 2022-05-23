@@ -17,7 +17,7 @@ class Batch(models.Model):
         return name
 
 class Group(models.Model):
-    name = models.CharField(max_length=5)
+    name = models.CharField(max_length=10)
     batch = models.ForeignKey(Batch, on_delete=models.SET_NULL,null=True)
     domain = models.ForeignKey(Domain, on_delete=models.SET_NULL,null=True)
     advisor = models.ForeignKey(Advisor,on_delete=models.SET_NULL,null=True)

@@ -27,3 +27,11 @@ class ViewBatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Batch
         fields = ('id', 'batchno', 'advisor', 'location', 'student', 'placement')
+
+class ViewGroupSerializer(serializers.ModelSerializer):
+    student = serializers.CharField(source='student.count')
+    advisor = serializers.CharField(source='advisor.user.username', read_only=True)
+    domain = serializers.CharField(source='domain.name')
+    class Meta:
+        model = Group
+        fields = '__all__'
