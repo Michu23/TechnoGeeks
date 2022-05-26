@@ -3,16 +3,17 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from Student.models import Placement, Student
+from Manifest.models import Manifest
 from .models import Batch, Group
 from Admin.models import Advisor
 from User.models import Domain
-from .serializer import ViewBatchSerializer, ViewGroupSerializer
+from .serializer import StudentSerializer, ViewBatchSerializer, ViewGroupSerializer, ViewGroupDetailsSerializer
 # Create your views here.
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def getBatch(request):
+def getBatches(request):
     if request.user.is_lead:
         batchs = Batch.objects.all()
         batchsArray = []
@@ -22,7 +23,6 @@ def getBatch(request):
             batch.save()
             serializer = ViewBatchSerializer(batch).data
             batchsArray.append(serializer)
-        print(batchsArray)
         return Response(batchsArray)
     else:
         return Response({"message": "You are not authorized to view Batch"})
@@ -57,7 +57,7 @@ def updateBatch(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def getGroup(request):
+def getGroups(request):
     if request.user.is_lead:
         groups = Group.objects.all()
         groupsArray = []
@@ -66,10 +66,62 @@ def getGroup(request):
             group.save()
             serializer = ViewGroupSerializer(group).data
             groupsArray.append(serializer)
-        print(groupsArray)
         return Response(groupsArray)
     else:
         return Response({"message": "You are not authorized to view Group"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def getGroupLess(request):
+    if request.user.is_lead:
+        students = Student.objects.filter(group = None,profile__domain__name=request.data['domain'], batch__batchno=request.data['batch'])
+        for student in students:
+            [student.week] = Manifest.objects.filter(student_name=student)[:1]
+            student.week = student.week.title
+            student.save()
+        serializer = StudentSerializer(students, many=True).data
+        return Response(serializer)
+    else:
+        return Response({"message": "You are not authorized to view Group"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def getGroupDetails(request):
+    if request.user.is_lead:
+        group = Group.objects.get(id=request.data['id'])
+        group.student = Student.objects.filter(group=group)
+        for student in group.student:
+            [student.week] = Manifest.objects.filter(student_name=student)[:1]
+            student.week = student.week.title
+            student.save()
+        group.save()
+        serializer = ViewGroupDetailsSerializer(group).data
+        return Response(serializer)
+    else:
+        return Response({"message": "You are not authorized to view Group"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def addInGroup(request):
+    if request.user.is_lead:
+        student = Student.objects.get(id=request.data['student'])
+        group = Group.objects.get(id=request.data['group'])
+        student.group = group
+        student.save()
+        return Response({"message": "Student added in group successfully"})
+    else:
+        return Response({"message": "You are not authorized to add Student in Group"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def removeFromGroup(request):
+    if request.user.is_lead:
+        student = Student.objects.get(id=request.data['student'])
+        student.group = None
+        student.save()
+        return Response({"message": "Student removed from group successfully"})
+    else:
+        return Response({"message": "You are not authorized to remove Student from Group"})
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

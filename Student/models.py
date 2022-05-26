@@ -21,7 +21,8 @@ class Student(models.Model):
     profile = models.OneToOneField(Profile,on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.user.username
+        s = self.user.username + ' ' + str(self.id)
+        return s
 
 class Placement(models.Model):
     student = models.OneToOneField(Student,on_delete=models.CASCADE)
