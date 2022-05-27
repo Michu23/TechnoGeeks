@@ -1,9 +1,7 @@
 from rest_framework import serializers
 from Student.models import Student
 from Manifest.models import Manifest
-
 from User.serializer import ProfileSerealizer, UserSerealizer
-
 from .models import Batch, Group
 from User.serializer import DomainSerealizer
 from Admin.serializer import AdvisorSerializer

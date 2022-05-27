@@ -26,3 +26,15 @@ class ShiftedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shifted
         fields = '__all__'
+        
+class ViewStudentSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='user.username')
+    domain = serializers.CharField(source='profile.domain.name',read_only=True)
+    group = serializers.CharField(source='group.name',read_only=True)
+    batch = serializers.CharField(source='batch.batchno',read_only=True)
+    advisor = serializers.CharField(source='batch.advisor.user.username',read_only=True)
+    week = serializers.CharField()
+    
+    class Meta:
+        model = Student
+        fields = ('id','name','batch','group','advisor','week','domain')

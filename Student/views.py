@@ -1,3 +1,23 @@
-from django.shortcuts import render
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from .models import Student
+from Manifest.models import Manifest
+from .serializer import ViewStudentSerializer
+
 
 # Create your views here.
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def getStudents(request):
+    if request.user.is_lead or request.user.is_staff:
+        students = Student.objects.all().order_by('batch')
+        
+        for student in students:
+            student.week = Manifest.objects.filter(student_name=student).order_by('-id')[0].title
+            print(student.week)
+            
+            
+        serializer = ViewStudentSerializer(students, many=True).data
+        return Response(serializer)
+        
