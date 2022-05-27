@@ -53,3 +53,11 @@ class ViewGroupDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ('id', 'domain', 'batch', 'student')
+
+class ViewMyGroupsSerializer(serializers.ModelSerializer):
+    student = serializers.IntegerField()
+    domain = serializers.CharField(source='domain.name', read_only=True)
+    batch = serializers.CharField(source='batch.batchno', read_only=True)
+    class Meta:
+        model = Group
+        fields = ('id', 'name', 'domain', 'batch', 'student')

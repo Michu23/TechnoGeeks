@@ -7,7 +7,7 @@ from Manifest.models import Manifest
 from .models import Batch, Group
 from Admin.models import Advisor
 from User.models import Domain
-from .serializer import StudentSerializer, ViewBatchSerializer, ViewGroupSerializer, ViewGroupDetailsSerializer
+from .serializer import StudentSerializer, ViewBatchSerializer, ViewGroupSerializer, ViewGroupDetailsSerializer, ViewMyGroupsSerializer
 # Create your views here.
 
 
@@ -72,6 +72,21 @@ def getGroups(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+def getMyGroups(request):
+    if request.user.is_staff:
+        groups = Group.objects.filter(advisor=request.user.advisor)
+        groupsArray = []
+        for group in groups:
+            group.student = Student.objects.filter(group=group)
+            group.save()
+            serializer = ViewGroupSerializer(group).data
+            groupsArray.append(serializer)
+        return Response(groupsArray)
+    else:
+        return Response({"message": "You are not authorized to view Group"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def getGroupLess(request):
     if request.user.is_lead:
         students = Student.objects.filter(group = None,profile__domain__name=request.data['domain'], batch__batchno=request.data['batch'])
@@ -93,6 +108,21 @@ def getGroupDetails(request):
         for student in group.student:
             [student.week] = Manifest.objects.filter(student_name=student)[:1]
             student.week = student.week.title
+            student.save()
+        group.save()
+        serializer = ViewGroupDetailsSerializer(group).data
+        return Response(serializer)
+    else:
+        return Response({"message": "You are not authorized to view Group"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def getMyGroupDetails(request):
+    if request.user.is_staff:
+        group = Group.objects.get(id=request.data['id'])
+        group.student = Student.objects.filter(group=group)
+        for student in group.student:
+            student.week = Manifest.objects.filter(student_name=student).order_by('-id')[0]
             student.save()
         group.save()
         serializer = ViewGroupDetailsSerializer(group).data
