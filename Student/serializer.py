@@ -26,6 +26,7 @@ class ShiftedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shifted
         fields = '__all__'
+
         
 class ViewStudentSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='user.username')
@@ -38,3 +39,14 @@ class ViewStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ('id','name','batch','group','advisor','week','domain')
+
+
+class MyStudentSerializer(serializers.ModelSerializer):
+    advisor = serializers.CharField(source='group.advisor.user.username', read_only=True)
+    week = serializers.CharField()
+    pending = serializers.IntegerField()
+    name = serializers.CharField(source='user.username')
+    class Meta:
+        model = Student
+        fields = ['id', 'name', 'advisor', 'week', 'pending']
+>>>>>>> ab975782a8570328ec7ec1125a054bbd143c289a
