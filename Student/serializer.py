@@ -49,4 +49,3 @@ class MyStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ['id', 'name', 'advisor', 'week', 'pending']
->>>>>>> ab975782a8570328ec7ec1125a054bbd143c289a
