@@ -32,3 +32,31 @@ class DS_ReviewSerealizer(serializers.ModelSerializer):
     class Meta:
         model = DS_Review
         fields = '__all__'
+
+class ReviewListSerealizer(serializers.ModelSerializer):
+    date = serializers.DateTimeField(format="%d/%m/%Y")
+    class Meta:
+        model = Review
+        fields = ('id', 'date', 'reviewer', 'remark')
+
+class StudentTasklistSerializer(serializers.ModelSerializer):
+    week = serializers.CharField(source='title', read_only=True)
+    tech_mark = serializers.IntegerField(source='techical_score', read_only=True)
+    misc_mark = serializers.IntegerField(source='misc_score', read_only=True)
+    pending = serializers.IntegerField()
+    reviews = ReviewListSerealizer(many=True)
+    class Meta:
+        model = Manifest
+        fields = ['id', 'week', 'pending', 'tech_mark', 'misc_mark', 'reviews']
+
+class TaskSerealizer(serializers.ModelSerializer):
+    class Meta:
+        model = Tasks
+        fields = ['id', 'taskname', 'status', 'date']
+
+class ManifestTaskSerealizer(serializers.ModelSerializer):
+    student_name = serializers.CharField(source='student_name.user.username', read_only=True)
+    tasks = TaskSerealizer(many=True)
+    class Meta:
+        model = Manifest
+        fields = ['id', 'title', 'student_name', 'personal_wo', 'techical_score', 'misc_score', 'is_complete', 'tasks']

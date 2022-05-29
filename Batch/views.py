@@ -1,13 +1,16 @@
+from re import A
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from Student.models import Placement, Student
 from Manifest.models import Manifest
+from Manifest.models import Review
+from Manifest.models import Tasks
 from .models import Batch, Group
 from Admin.models import Advisor
 from User.models import Domain
-from .serializer import StudentSerializer, ViewBatchSerializer, ViewGroupSerializer, ViewGroupDetailsSerializer, ViewMyGroupsSerializer
+from .serializer import StudentGroupSerializer, ViewBatchSerializer, ViewGroupSerializer, ViewGroupDetailsSerializer, GroupStudentDetailsSerializer
 # Create your views here.
 
 
@@ -94,7 +97,7 @@ def getGroupLess(request):
             [student.week] = Manifest.objects.filter(student_name=student)[:1]
             student.week = student.week.title
             student.save()
-        serializer = StudentSerializer(students, many=True).data
+        serializer = StudentGroupSerializer(students, many=True).data
         return Response(serializer)
     else:
         return Response({"message": "You are not authorized to view Group"})
@@ -120,12 +123,13 @@ def getGroupDetails(request):
 def getMyGroupDetails(request):
     if request.user.is_staff:
         group = Group.objects.get(id=request.data['id'])
-        group.student = Student.objects.filter(group=group)
-        for student in group.student:
-            student.week = Manifest.objects.filter(student_name=student).order_by('-id')[0]
+        students = Student.objects.filter(group=group)
+        for student in students:
+            student.week = Manifest.objects.filter(student_name=student).order_by('-id')[0].title
+            student.pending = Tasks.objects.filter(week__student_name=student, status=False).count()
+            student.count = Review.objects.filter(manifest__student_name=student).count() - 1
             student.save()
-        group.save()
-        serializer = ViewGroupDetailsSerializer(group).data
+        serializer = GroupStudentDetailsSerializer(students, many=True).data
         return Response(serializer)
     else:
         return Response({"message": "You are not authorized to view Group"})

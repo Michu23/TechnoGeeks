@@ -17,6 +17,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Add custom claims
         token['username'] = user.username
+        token['position'] = user.department.name
         # ...
 
         return token
@@ -92,6 +93,7 @@ def getProfile(request):
     else:
         return Response({'error': 'You are not authorized to get profile'})
     data = profile.data
+    print(data)
     data['email'] = user.email
     return Response(data)
 
