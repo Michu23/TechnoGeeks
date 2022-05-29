@@ -20,11 +20,13 @@ class UserSerealizer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
 
         if validated_data['is_staff']:
+            user.department = 'Advisor'
             user.is_staff = True
             user.save()
             profile = Profile.objects.create()
             Advisor.objects.create(user=user, profile=profile)
         else:
+            user.department = 'Student'
             user.is_student = True
             user.save()
             profile = Profile.objects.create()

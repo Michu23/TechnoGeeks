@@ -15,7 +15,7 @@ class Manifest(models.Model):
     is_complete = models.BooleanField(default=False)
 
     def __str__(self):
-        name = self.title + ' of ' + self.student_name.user.username
+        name = self.title + ' of ' + self.student_name.user.username + ' ' + str(self.id)
         return name
 
 class Review(models.Model):

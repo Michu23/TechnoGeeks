@@ -1,8 +1,5 @@
 from rest_framework import serializers
 from Student.models import Student
-from Manifest.models import Manifest
-
-from User.serializer import ProfileSerealizer, UserSerealizer
 
 from .models import Batch, Group
 from User.serializer import DomainSerealizer
@@ -39,7 +36,7 @@ class ViewGroupSerializer(serializers.ModelSerializer):
         model = Group
         fields = '__all__'
 
-class StudentSerializer(serializers.ModelSerializer):
+class StudentGroupSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
     week = serializers.CharField()
     class Meta:
@@ -47,17 +44,18 @@ class StudentSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'week')
 
 class ViewGroupDetailsSerializer(serializers.ModelSerializer):
-    student = StudentSerializer(many=True)
+    student = StudentGroupSerializer(many=True)
     domain = serializers.CharField(source='domain.name', read_only=True)
     batch = serializers.CharField(source='batch.batchno', read_only=True)
     class Meta:
         model = Group
         fields = ('id', 'domain', 'batch', 'student')
 
-class ViewMyGroupsSerializer(serializers.ModelSerializer):
-    student = serializers.IntegerField()
-    domain = serializers.CharField(source='domain.name', read_only=True)
-    batch = serializers.CharField(source='batch.batchno', read_only=True)
+class GroupStudentDetailsSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='user.username', read_only=True)
+    week = serializers.CharField()
+    pending = serializers.IntegerField()
+    count = serializers.IntegerField()
     class Meta:
-        model = Group
-        fields = ('id', 'name', 'domain', 'batch', 'student')
+        model = Student
+        fields = ('id', 'name', 'week', 'pending', 'count')
