@@ -5,26 +5,26 @@ from .models import Student
 from Manifest.models import Manifest
 from .serializer import ViewStudentSerializer
 
+from .serializer import MyStudentSerializer
+from Manifest.models import Manifest, Tasks
+
 
 # Create your views here.
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getStudents(request):
     if request.user.is_lead or request.user.is_staff:
         students = Student.objects.all().order_by('batch')
-        
+        print("About to print something")
         for student in students:
             student.week = Manifest.objects.filter(student_name=student).order_by('-id')[0].title
-            print(student.week)
-            
+            student.save()
             
         serializer = ViewStudentSerializer(students, many=True).data
+        print(serializer)
         return Response(serializer)
         
 
-from .models import Student
-from .serializer import MyStudentSerializer
-from Manifest.models import Manifest, Tasks
 
 # Create your views here.
 
