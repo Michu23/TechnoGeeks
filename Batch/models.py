@@ -7,13 +7,12 @@ from User.models import Domain
 #Batch
 class Batch(models.Model):
     code = models.CharField(max_length=20, unique=True, null=True)
-    batchno = models.IntegerField()
-    location = models.CharField(max_length=30, null=True, blank=True)
+    name = models.CharField(max_length=15, null=True)
     advisor = models.ForeignKey(Advisor,on_delete=models.SET_NULL,null=True)
     created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        name = str(self.batchno) + ' ' + str(self.id)
+        name = self.name + ' ' + str(self.id)
         return name
 
 class Group(models.Model):
@@ -24,3 +23,9 @@ class Group(models.Model):
 
     def __str__(self):
         return self.name
+
+class Location(models.Model):
+    place = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.place

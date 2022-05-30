@@ -1,7 +1,6 @@
-from asyncore import write
 from datetime import timedelta
 from rest_framework import serializers
-from .models import User, Domain, Profile, Notification
+from .models import Department, User, Domain, Profile, Notification
 from Admin.models import Advisor
 from Student.models import Student
 from Manifest.models import Manifest, Review
@@ -20,13 +19,13 @@ class UserSerealizer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
 
         if validated_data['is_staff']:
-            user.department = 'Advisor'
+            user.department = Department.objects.get(name='Advisor')
             user.is_staff = True
             user.save()
             profile = Profile.objects.create()
             Advisor.objects.create(user=user, profile=profile)
         else:
-            user.department = 'Student'
+            user.department = Department.objects.get(name='Student')
             user.is_student = True
             user.save()
             profile = Profile.objects.create()

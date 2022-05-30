@@ -13,7 +13,6 @@ from .serializer import AdvisorFullSerealizer, AdvisorHalfSerializer
 def getAdvisorsNames(request):
     if request.user.is_lead:
         advisors = AdvisorHalfSerializer(Advisor.objects.all(), many=True)
-        print(advisors.data)
         return Response(advisors.data)
     else:
         return Response({"message": "You are not authorized to get Advisors"})
@@ -24,13 +23,10 @@ def getAdvisors(request):
     if request.user.is_lead:
         advisors = Advisor.objects.all()
         for advisor in advisors:
-            advisor.batch = [ x.batchno for x in list(Batch.objects.filter(advisor=advisor))]
-            # advisor.batch = list(Batch.objects.filter(advisor=advisor))
-            # a = [ x.batchno for x in list(Batch.objects.filter(advisor=advisor))]
-            # print('a######################', a)
+            advisor.batch = [ batch.name for batch in list(Batch.objects.filter(advisor=advisor))]
             advisor.group = Group.objects.filter(advisor=advisor)
+            advisor.save()
         advisors_serializer = AdvisorFullSerealizer(advisors, many=True)
-        print('1234567890-=======',advisors_serializer.data)
         return Response(advisors_serializer.data)
     else:
         return Response({"message": "You are not authorized to get Advisors"})

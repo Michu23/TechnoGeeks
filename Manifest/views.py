@@ -18,7 +18,6 @@ def getTaskslist(request):
             manifest.reviews = Review.objects.filter(manifest=manifest)
             manifest.save()
         serializer = StudentTasklistSerializer(manifests, many=True).data
-        print(serializer)
         return Response(serializer)
 
 @api_view(['POST'])

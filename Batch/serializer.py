@@ -25,13 +25,13 @@ class ViewBatchSerializer(serializers.ModelSerializer):
     advisor = serializers.CharField(source='advisor.user.username', read_only=True)
     class Meta:
         model = Batch
-        fields = ('id', 'batchno', 'advisor', 'location', 'student', 'placement')
+        fields = ('id', 'name', 'advisor', 'student', 'placement')
 
 class ViewGroupSerializer(serializers.ModelSerializer):
     student = serializers.CharField(source='student.count')
     advisor = serializers.CharField(source='advisor.user.username', read_only=True)
     domain = serializers.CharField(source='domain.name', read_only=True)
-    batch = serializers.CharField(source='batch.batchno', read_only=True)
+    batch = serializers.CharField(source='batch.name', read_only=True)
     class Meta:
         model = Group
         fields = '__all__'
@@ -46,7 +46,7 @@ class StudentGroupSerializer(serializers.ModelSerializer):
 class ViewGroupDetailsSerializer(serializers.ModelSerializer):
     student = StudentGroupSerializer(many=True)
     domain = serializers.CharField(source='domain.name', read_only=True)
-    batch = serializers.CharField(source='batch.batchno', read_only=True)
+    batch = serializers.CharField(source='batch.name', read_only=True)
     class Meta:
         model = Group
         fields = ('id', 'domain', 'batch', 'student')

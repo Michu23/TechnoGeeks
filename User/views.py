@@ -17,7 +17,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Add custom claims
         token['username'] = user.username
-        token['position'] = user.department.name
+        if user.is_superuser == False:
+            token['position'] = user.department.name
         # ...
 
         return token
@@ -30,15 +31,6 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = UserSerealizer
-
-# @api_view(['POST'])
-# def get_user(request):
-#     print("==============================")
-#     print('request :::::::::::::', request)
-#     print('User:::::::::::::', request.user)
-#     print('User Name :::::::::::::', request.user.username)
-#     print('Data :::::::::::::', request.data)
-#     return Response({"name": request.user.username})
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -93,7 +85,6 @@ def getProfile(request):
     else:
         return Response({'error': 'You are not authorized to get profile'})
     data = profile.data
-    print(data)
     data['email'] = user.email
     return Response(data)
 

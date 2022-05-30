@@ -15,13 +15,11 @@ from Manifest.models import Manifest, Tasks
 def getStudents(request):
     if request.user.is_lead or request.user.is_staff:
         students = Student.objects.all().order_by('batch')
-        print("About to print something")
         for student in students:
             student.week = Manifest.objects.filter(student_name=student).order_by('-id')[0].title
             student.save()
             
         serializer = ViewStudentSerializer(students, many=True).data
-        print(serializer)
         return Response(serializer)
         
 
