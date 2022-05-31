@@ -127,7 +127,7 @@ def getMyGroupDetails(request):
         for student in students:
             student.week = Manifest.objects.filter(student_name=student).order_by('-id')[0].title
             student.pending = Tasks.objects.filter(week__student_name=student, status=False).count()
-            student.count = Review.objects.filter(manifest__student_name=student).count() - 1
+            student.count = Review.objects.filter(manifest__student_name=student).count()
             student.save()
         serializer = GroupStudentDetailsSerializer(students, many=True).data
         return Response(serializer)
