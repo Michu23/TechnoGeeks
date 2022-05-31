@@ -10,7 +10,6 @@ from Manifest.models import Manifest
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def getTaskslist(request):
-    print(request.user.is_student)
     if request.user.is_staff or request.user.is_student:
         if request.user.is_staff:
             student = Student.objects.get(id=request.data['id'])
@@ -22,7 +21,6 @@ def getTaskslist(request):
             manifest.reviews = Review.objects.filter(manifest=manifest)
             manifest.save()
         serializer = StudentTasklistSerializer(manifests, many=True).data
-        print('done')
         return Response(serializer)
     else:
         return Response({'error': 'You are not allowed to perform this action'})
@@ -35,5 +33,28 @@ def getManifest(request):
         manifest.tasks = Tasks.objects.filter(week=manifest)
         serializer = ManifestTaskSerealizer(manifest).data
         return Response(serializer)
+    else:
+        return Response({'error': 'You are not allowed to perform this action'})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def addTask(request):
+    if request.user.is_staff:
+        print(request.data['manifest'])
+        Tasks.objects.create(
+            week=Manifest.objects.get(id=request.data['manifest']),
+            taskname=request.data['task'],
+            status=False
+        )
+        return Response({'success': 'Task added'})
+    else:
+        return Response({'error': 'You are not allowed to perform this action'})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def completeTask(request):
+    if request.user.is_staff:
+        Tasks.objects.filter(id=request.data['task']).update(status=True)
+        return Response({'success': 'Task completed'})
     else:
         return Response({'error': 'You are not allowed to perform this action'})

@@ -24,7 +24,8 @@ class User(AbstractUser):
     is_student = models.BooleanField(default=False,null=True)
 
     def __str__(self):
-        return self.username
+        s = self.username + " " + str(self.id)
+        return s
 
 class Domain(models.Model):
     name = models.CharField(max_length=20)
