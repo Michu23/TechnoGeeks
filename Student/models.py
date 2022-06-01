@@ -31,7 +31,7 @@ class Placement(models.Model):
     location = models.CharField(max_length=20,null=True, blank=True)
     LPA= models.FloatField()
     count = models.IntegerField(null=True)
-    date = models.DateTimeField(auto_now_add=True, null=True)
+    date = models.DateField(auto_now_add=True, null=True)
 
     def __str__(self):
         return self.student.user.username
@@ -40,9 +40,7 @@ class Shifted(models.Model):
     student= models.ForeignKey(Student, on_delete=models.CASCADE,null=True)
     shifted_to = models.ForeignKey(Batch, on_delete=models.SET_NULL,null=True,blank=True)
     shifted_in = models.ForeignKey(Batch, on_delete=models.SET_NULL,null=True,blank=True,related_name="come_from")
-    date= models.DateTimeField(auto_now_add=True)
+    date= models.DateField(auto_now_add=True)
 
     def __str__(self):
         return self.student.user.username
-
-

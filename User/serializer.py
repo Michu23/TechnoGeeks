@@ -31,7 +31,8 @@ class UserSerealizer(serializers.ModelSerializer):
             profile = Profile.objects.create()
             batch = Batch.objects.get(id = validated_data['batch'])
             student = Student.objects.create(user=user, profile=profile, batch=batch)
-            Manifest.objects.create(title = 'Week 01',student_name=student)
+            day = student.batch.start_date + timedelta(days=7) if student.batch.start_date.strftime('%a') == "Sun" else student.batch.start_date + timedelta(days=8)
+            Manifest.objects.create(title = 'Week 01',student_name=student, next_review=day)
         return user
 
 class DomainSerealizer(serializers.ModelSerializer):
