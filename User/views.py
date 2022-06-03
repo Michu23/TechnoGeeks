@@ -94,7 +94,6 @@ def getMyProfile(request):
             profile = ProfileSerealizer(Profile.objects.get(student=student.get(id=request.data['userId'])))
     data = profile.data
     data['email'] = user.email
-    print(data)
     return Response(data)
 
 @api_view(['POST'])
