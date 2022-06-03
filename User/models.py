@@ -54,7 +54,7 @@ class Profile(models.Model):
     experience = models.CharField(max_length=20,null=True, blank=True, default='')
     company = models.CharField(max_length=20,null=True, blank=True, default='')
     designation = models.CharField(max_length=20,null=True, blank=True, default='')
-    mobile = models.IntegerField(null=True, blank=True, default=0)
+    mobile = models.BigIntegerField(null=True, blank=True, default=0)
     govtid = models.ImageField(upload_to='Media/Id',blank=True)
 
     def __str__(self):
