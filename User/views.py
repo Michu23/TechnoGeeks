@@ -5,9 +5,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from Admin.models import Advisor
+from Admin.models import Advisor, Code
 from Student.models import Student
-from .models import *
+from Batch.models import Batch
+from .models import User, Profile, Domain, Notification
 from .serializer import UserSerealizer, NotificationSerealizer, ProfileSerealizer, DomainSerealizer
 
 
@@ -60,8 +61,8 @@ def updateProfile(request):
         return Response({'error': 'You are not authorized to update profile'})
     profile.first_name = request.data['first_name']
     profile.last_name = request.data['last_name']
-    profile.domain = Domain.objects.get(id=request.data['domain'])
-    profile.dob= request.data['dob']
+    profile.domain = Domain.objects.get(id=request.data['domain']) if request.data['domain'] != None else None
+    profile.dob = request.data['dob']
     # profile.gender = request.data['gender'] 
     profile.address = request.data['address']
     profile.village = request.data['village']
@@ -130,3 +131,16 @@ def updateDomain(request):
         return Response({"message": "Domain updated successfully"})
     else:
         return Response({"message": "You are not authorized to update Domain"})
+
+@api_view(['POST'])
+def isCodeValid(request):
+    code = request.data['code']
+    batches = Batch.objects.filter(code=code)
+    if len(batches) == 0:
+        advisor = Code.objects.filter(code=code)
+        if len(advisor) == 0:
+            return Response({"status":400, "message": "Code is not valid"})
+        else:
+            return Response({"status":200, "message": "advisor"})
+    else:
+        return Response({"status":200, "message": "student", "batch": batches[0].id})

@@ -3,9 +3,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from Batch.models import Batch
 from User.models import Profile, Domain
-from .models import Student
+from .models import Student, Placement
 from Manifest.models import Manifest
-from .serializer import ViewStudentSerializer, MyStudentSerializer
+from .serializer import ViewStudentSerializer, MyStudentSerializer, PlacementSerializer
 from Manifest.models import Manifest, Tasks
 
 
@@ -37,6 +37,16 @@ def getMyStudents(request):
             student.pending = Tasks.objects.filter(week=Manifest.objects.filter(student_name=student)[0], status=False).count()
             student.save()
         serializer = MyStudentSerializer(students, many=True).data
+        return Response(serializer)
+    else:
+        return Response({"error": "You are not authorized to view this page"})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getPlacements(request):
+    if request.user.is_lead:
+        students = Placement.objects.all()
+        serializer = PlacementSerializer(students, many=True).data
         return Response(serializer)
     else:
         return Response({"error": "You are not authorized to view this page"})

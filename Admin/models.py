@@ -14,3 +14,9 @@ class Reviewer(models.Model):
 
     def __str__(self):
         return self.name
+
+class Code(models.Model):
+    code = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.code
