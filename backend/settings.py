@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -134,7 +135,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'technogeeks',
         'USER': 'postgres',
-        'PASSWORD': 'michu',
+        'PASSWORD': config('db_password'),
         'HOST': 'localhost',
         'POST':'5432'
     }

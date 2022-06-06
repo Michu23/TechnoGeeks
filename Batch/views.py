@@ -53,7 +53,7 @@ def deleteBatch(request):
 @permission_classes([IsAuthenticated])
 def updateBatch(request):
     if request.user.is_lead:
-        Batch.objects.filter(id=request.data['id']).update(advisor=request.data['advisor'])
+        Batch.objects.filter(id=request.data['id']).update(advisor=request.data['advisor'], code=request.data['code'])
         return Response({"message": "Batch updated successfully"})
     else:
         return Response({"message": "You are not authorized to update Batch"})
