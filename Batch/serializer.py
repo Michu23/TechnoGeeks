@@ -25,7 +25,7 @@ class ViewBatchSerializer(serializers.ModelSerializer):
     advisor = serializers.CharField(source='advisor.user.username', read_only=True)
     class Meta:
         model = Batch
-        fields = ('id', 'name', 'advisor', 'student', 'placement')
+        fields = ('id', 'name', 'advisor', 'student', 'placement', 'code')
 
 class ViewGroupSerializer(serializers.ModelSerializer):
     student = serializers.CharField(source='student.count')
