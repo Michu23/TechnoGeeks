@@ -39,3 +39,12 @@ def getAdvisors(request):
         return Response(advisors_serializer.data)
     else:
         return Response({"message": "You are not authorized to get Advisors"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def deleteAdvisor(request):
+    if request.user.is_lead:
+        Advisor.objects.filter(id=request.data['id']).delete()
+        return Response({"message": "Advisor deleted successfully"})
+    else:
+        return Response({"message": "You are not authorized to get Advisors"})
