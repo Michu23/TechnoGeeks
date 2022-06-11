@@ -10,5 +10,8 @@ urlpatterns = [
     path('shiftpay', views.shiftPayments, name='shiftPayments'),
     path('paying', views.paying, name='paying'),
     path('myPayments', views.myPayments, name='myPayments'),
+    path('pending', views.allPendingPayments, name='pending'),
+    path('cashpaid', views.cashPaid, name='cashpaid'),
+    path('sendform', views.sendForm, name='sendform'),
 
 ]
