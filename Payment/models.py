@@ -1,6 +1,8 @@
 from django.db import models
 from Student.models import Student
 import datetime
+from datetime import timedelta
+
 
 # Create your models here.
 class Payment(models.Model):
@@ -46,7 +48,7 @@ class Payment(models.Model):
     totalamt = models.IntegerField(default=0,null=True,blank=True)
     month = models.CharField(max_length=20,choices=MONTH,default='---')
     paid_date = models.DateField(null=True,blank=True)
-    expiry_date = models.DateField(null=True,blank=True)
+    expiry_date = models.DateField(null=True,blank=True,default=datetime.datetime.today()-datetime.timedelta(1))
 
     def __str__(self):
         return self.student.user.username

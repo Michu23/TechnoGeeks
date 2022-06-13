@@ -29,3 +29,10 @@ class Location(models.Model):
 
     def __str__(self):
         return self.place
+    
+class Branch(models.Model):
+    name = models.CharField(max_length=30)
+    location = models.ForeignKey(Location, on_delete=models.SET_NULL,null=True)
+
+    def __str__(self):
+        return self.name

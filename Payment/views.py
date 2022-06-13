@@ -6,6 +6,8 @@ import datetime
 from .models import Payment
 from .serializer import PaymentSerializer
 from django.db.models import Q
+from datetime import timedelta
+
 
 # Create your views here.
 
@@ -16,18 +18,30 @@ def rentPayments(request):
         date = datetime.date.today()
         month = date.strftime("%B")
         pay = Payment.objects.filter(student=request.user.student,month=month,types='Rent')
+        pay2 = Payment.objects.filter(student=request.user.student,types='Rent',status='Completed',month=month)
+        user = request.user
+        student = user.student
+        count = student.manifest_set.all().count() 
+        if count >= 20:
+            amount = 3600
+        elif count >= 21:
+            amount = 2800
+        elif count >= 22:
+            amount = 2000
+        elif count >= 23:
+            amount = 1200
+        elif count >= 24:
+            amount = 500
+        else:
+            amount = 4000
+            
         if pay:
-            if pay[0].status == 'Pending':
-                print("Pending")
-                context = {
-                    'id':pay[0].id,
-                    'amount':pay[0].totalamt,
-                    'type':pay[0].types,
-                    'status':pay[0].status,
-                    }
-                return Response(context)
-            elif pay[0].status == 'Partially':
-                print("Partially")
+            if pay[0].status == 'Pending' or pay[0].status == 'Partially':
+                if date.day>12 and date>pay[0].expiry_date:
+                    pay[0].status = 'Expired'
+                    pay[0].save()
+            
+            if pay[0].status == 'Pending' or pay[0].status == 'Partially':
                 context = {
                     'id':pay[0].id,
                     'amount':pay[0].amount,
@@ -36,62 +50,60 @@ def rentPayments(request):
                     }
                 return Response(context)
             else:
-                print("Completed")
                 return Response({'status':'Paid'})
+        elif date.day <= 3:
+            pay = Payment.objects.create(student=student,amount=amount,totalamt=amount,types='Rent',status='Pending',month=month)
+            context = {
+                'id':pay.id,
+                'amount':pay.totalamt,
+                'type':pay.types,
+                'status':pay.status,
+            }
+            return Response(context)
+        elif len(pay2) is 0:
+            newpay = Payment.objects.create(student=student,amount=amount,totalamt=amount,types='Rent',status='Expired',month=month)
+            context = {
+                'id':newpay.id,
+                'amount':newpay.totalamt,
+                'type':newpay.types,
+                'status':newpay.status,
+            }
+            return Response(context)
         else:
-            if date.day <= 11:
-                user = request.user
-                student = user.student
-                count = student.manifest_set.all().count() 
-                
-                if count >= 20:
-                    amount = 3600
-                elif count >= 21:
-                    amount = 2800
-                elif count >= 22:
-                    amount = 2000
-                elif count >= 23:
-                    amount = 1200
-                elif count >= 24:
-                    amount = 500
-                else:
-                    amount = 4000
-                pay = Payment.objects.create(student=student,amount=amount,totalamt=amount,types='Rent',status='Pending',month=month)
-                context = {
-                    'id':pay.id,
-                    
-                    'amount':pay.totalamt,
-                    'type':pay.types,
-                    'status':pay.status,
-                }
-                return Response(context)
-            else:
-                return Response({'status':'Paid'})
+            return Response({'status':'Paid'})
+            
     
             
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def upfrontPayments(request):
     if request.user.is_student:
-        date = datetime.date.today()
+        date = datetime.datetime.today()
+        date_2 = datetime.date.today()
+        print(type(date_2))
         month = date.strftime("%B")
-        date_joined = int(request.user.date_joined.strftime("%d"))
+        date_joined = request.user.date_joined
+        start = date_joined+timedelta(3)
+        expiry = date_joined+timedelta(6)
         
         pay = Payment.objects.filter(student=request.user.student,month=month,types='Upfront')
         if pay:
-            if pay[0].status == 'Pending':
-                context = {
-                    'id':pay[0].id,
-                    'amount':pay[0].totalamt,
-                    'type':pay[0].types,
-                    'status':pay[0].status,
-                    }
-                return Response(context)
-            elif pay[0].status == 'Partially':
+            if pay[0].status == 'Pending' or pay[0].status == 'Partially':
+                if date.replace(tzinfo=None) >= expiry.replace(tzinfo=None):
+                    if date_2>pay[0].expiry_date:
+                        pay[0].status = 'Expired'
+                        pay[0].save()
+                    else:
+                        pass
+                else:
+                    pass
+            else:
+                pass
+            
+            if pay[0].status == 'Pending' or pay[0].status == 'Partially':
                 context = {
                     'id':pay[0].id,
                     'amount':pay[0].amount,
-                    'paid':pay[0].amount,
                     'type':pay[0].types,
                     'status':pay[0].status,
                     }
@@ -100,13 +112,9 @@ def upfrontPayments(request):
                 return Response({'status':'Paid'})
             
         else:
-            print("Date joined",date_joined+3)
-            print("today",date.day)
-            print("expiry",date_joined+14)
             
-            if date.day >= date_joined+3 and date.day <= date_joined+14:
+            if date.day >= start.day and date.day <= expiry.day:
                 count = Payment.objects.filter(student=request.user.student,types='Upfront').count()
-                print("count",count)
                 user = request.user
                 student = user.student
                 if count == 0:
@@ -118,7 +126,7 @@ def upfrontPayments(request):
                 else:
                     return Response({'status':'Paid'})
                     
-                pay = Payment.objects.create(student=student,totalamt=amount,amount=amount,types='Upfront',status='Pending',month=month)
+                pay = Payment.objects.create(student=student,totalamt=amount,amount=amount,types='Upfront',status='Pending',month=month,expiry_date=expiry)
                 context = {
                     'id':pay.id,
                     'amount':pay.totalamt,
@@ -138,20 +146,18 @@ def shiftPayments(request):
     if request.user.is_student:
         pay = Payment.objects.filter(student=request.user.student,types='BatchShift')
         if pay:
-            if pay[0].status == 'Pending':
+            if pay[0].status == 'Pending' or pay[0].status == 'Partially':
+                if date>pay[0].expiry_date:
+                    pay[0].status = 'Expired'
+                    pay[0].save()
+                else:
+                    pass
+            else:
+                pass
+            if pay[0].status == 'Pending' or pay[0].status == 'Partially':
                 context = {
                     'id':pay[0].id,
                     'amount':pay[0].totalamt,
-                    'type':pay[0].types,
-                    'status':pay[0].status,
-                    }
-                return Response(context)
-        
-            elif pay[0].status == 'Partially':
-                context = {
-                    'id':pay[0].id,
-                    'amount':pay[0].amount,
-                    'paid':pay[0].amount,
                     'type':pay[0].types,
                     'status':pay[0].status,
                     }
@@ -230,7 +236,6 @@ def cashPaid(request):
             pay[0].save()
             return Response({'status':'Paid'})
         
-from datetime import timedelta
         
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -242,9 +247,14 @@ def sendForm(request):
         pay = Payment.objects.filter(id=ids)
         if pay:
             if pay[0].status == 'Expired':
-                pay[0].status = 'Pending'
-                pay[0].expiry_date = next_day
-                pay[0].save()
+                if pay[0].paid == 0:
+                    pay[0].status = 'Pending'
+                    pay[0].expiry_date = next_day
+                    pay[0].save()
+                else:
+                    pay[0].status = 'Partially'
+                    pay[0].expiry_date = next_day
+                    pay[0].save()
                 return Response({'status':'Success'})
         else :
             return Response({'status':'Not Found'})

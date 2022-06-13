@@ -13,5 +13,6 @@ urlpatterns = [
     path('pending', views.allPendingPayments, name='pending'),
     path('cashpaid', views.cashPaid, name='cashpaid'),
     path('sendform', views.sendForm, name='sendform'),
+    path('completed', views.allCompletedPayments, name='completed'),
 
 ]

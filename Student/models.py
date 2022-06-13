@@ -11,7 +11,8 @@ class Student(models.Model):
     ('Training','Training'),
     ('Placed','Placed'),
     ('RequestedTermination','RequestedTermination'),
-    ('Terminated','Terminated')
+    ('Terminated','Terminated'),
+    ('Quit','Quit'),
     )
     
     user = models.OneToOneField(User, on_delete=models.CASCADE,null=True)
