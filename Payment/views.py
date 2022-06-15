@@ -80,11 +80,12 @@ def upfrontPayments(request):
     if request.user.is_student:
         date = datetime.datetime.today()
         date_2 = datetime.date.today()
-        print(type(date_2))
         month = date.strftime("%B")
         date_joined = request.user.date_joined
         start = date_joined+timedelta(3)
         expiry = date_joined+timedelta(6)
+              
+        
         
         pay = Payment.objects.filter(student=request.user.student,month=month,types='Upfront')
         if pay:
@@ -93,13 +94,7 @@ def upfrontPayments(request):
                     if date_2>pay[0].expiry_date:
                         pay[0].status = 'Expired'
                         pay[0].save()
-                    else:
-                        pass
-                else:
-                    pass
-            else:
-                pass
-            
+                        
             if pay[0].status == 'Pending' or pay[0].status == 'Partially':
                 context = {
                     'id':pay[0].id,

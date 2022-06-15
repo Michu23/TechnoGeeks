@@ -24,14 +24,14 @@ class User(AbstractUser):
     is_student = models.BooleanField(default=False,null=True)
 
     def __str__(self):
-        s = self.username + " " + str(self.id)
+        s = self.username 
         return s
 
 class Domain(models.Model):
     name = models.CharField(max_length=20)
 
     def __str__(self):
-        s = self.name + " " + str(self.id)
+        s = self.name
         return s
 
 class Profile(models.Model):

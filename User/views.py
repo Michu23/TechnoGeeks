@@ -62,7 +62,7 @@ def deleteNotifications(request):
 def createNotifications(request):
     user = request.user
     if user.is_lead:
-        Notification.objects.create(type = request.data['type'], content = request.data['content'], creator = user)
+        Notification.objects.create(type = request.data['type'], content = request.data['content'], creator = user.username)
         return Response({"message": "Notification created successfully"})
     else:
         return Response({"message": "You are not authorized to create Notification"})

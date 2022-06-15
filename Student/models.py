@@ -1,6 +1,7 @@
 from django.db import models
-from Batch.models import Batch, Group
+from Batch.models import Batch, Group, Branch
 from User.models import User, Profile
+
 
 # Create your models here.
 
@@ -20,6 +21,7 @@ class Student(models.Model):
     status = models.CharField(max_length=20,choices=STATUS)
     group = models.ForeignKey(Group, on_delete=models.SET_NULL,null=True)
     profile = models.OneToOneField(Profile,on_delete=models.CASCADE)
+    branch = models.ForeignKey(Branch, on_delete=models.SET_NULL,null=True)
 
     def __str__(self):
         s = self.user.username + ' ' + str(self.id)
@@ -45,3 +47,9 @@ class Shifted(models.Model):
 
     def __str__(self):
         return self.student.user.username
+    
+
+class Attendance(models.Model):
+    date = models.DateField(auto_now_add=True)
+    status = models.BooleanField(default=True)
+    stcode = models.ManyToManyField(Student)

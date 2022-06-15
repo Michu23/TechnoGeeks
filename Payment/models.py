@@ -51,4 +51,5 @@ class Payment(models.Model):
     expiry_date = models.DateField(null=True,blank=True,default=datetime.datetime.today()-datetime.timedelta(1))
 
     def __str__(self):
-        return self.student.user.username
+        name = self.student.user.username + " " + self.types + " " + self.status
+        return name
