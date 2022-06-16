@@ -34,10 +34,10 @@ class DS_ReviewSerealizer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ReviewListSerealizer(serializers.ModelSerializer):
-    date = serializers.DateField(format="%d/%m/%Y")
+    created = serializers.DateField(format="%d/%m/%Y")
     class Meta:
         model = Review
-        fields = ('id', 'date', 'reviewer', 'remark')
+        fields = ('id', 'created', 'reviewer', 'remark')
 
 class StudentTasklistSerializer(serializers.ModelSerializer):
     week = serializers.CharField(source='title', read_only=True)
@@ -53,7 +53,7 @@ class StudentTasklistSerializer(serializers.ModelSerializer):
 class TaskSerealizer(serializers.ModelSerializer):
     class Meta:
         model = Tasks
-        fields = ['id', 'taskname', 'status', 'date']
+        fields = ['id', 'taskname', 'status', 'created']
 
 class ManifestTaskSerealizer(serializers.ModelSerializer):
     student_name = serializers.CharField(source='student_name.user.username', read_only=True)

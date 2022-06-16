@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from Batch.models import Batch
 from User.models import Profile, Domain
-from .models import Student, Placement
+from .models import Shifted, Student, Placement
 from Manifest.models import Manifest
 from .serializer import ViewStudentSerializer, MyStudentSerializer, PlacementSerializer
 from Manifest.models import Manifest, Tasks
@@ -59,6 +59,25 @@ def manageStudent(request):
         student.batch = Batch.objects.get(id=request.data['batch'])
         student.save()
         Profile.objects.filter(student=student).update(domain=Domain.objects.get(id=request.data['domain']))
+        return Response({"message": "Student Updated"})
+    else:
+        return Response({"message": "You are not authorized to perform this action"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def shiftRequest(request):
+    if request.user.is_staff:
+        student = Student.objects.get(id=request.data['student'])
+        Shifted.objects.create(student=student, shifted_to=Batch.objects.get(id=request.data['shift_to']), shifted_in=student.batch)
+        return Response({"message": "Student Updated"})
+    else:
+        return Response({"message": "You are not authorized to perform this action"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def terminateRequest(request):
+    if request.user.is_staff:
+        Student.objects.filter(id=request.data['student']).update(status="RequestedTermination")
         return Response({"message": "Student Updated"})
     else:
         return Response({"message": "You are not authorized to perform this action"})
