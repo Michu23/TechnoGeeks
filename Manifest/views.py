@@ -11,8 +11,8 @@ from Manifest.models import Manifest
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def getTaskslist(request):
-    if request.user.is_staff or request.user.is_student:
-        if request.user.is_staff:
+    if request.user.is_lead or request.user.is_staff or request.user.is_student:
+        if request.user.is_lead or request.user.is_staff:
             student = Student.objects.get(id=request.data['id'])
         else:
             student = request.user.student
@@ -29,7 +29,7 @@ def getTaskslist(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def getManifest(request):
-    if request.user.is_staff or request.user.is_student:
+    if request.user.is_lead or request.user.is_staff or request.user.is_student:
         manifest = Manifest.objects.get(id=request.data['id'])
         manifest.tasks = Tasks.objects.filter(week=manifest)
         serializer = ManifestTaskSerealizer(manifest).data
@@ -67,9 +67,10 @@ def reviewPassed(request):
         manifest = Manifest.objects.get(id=request.data['manifest'])
         Review.objects.create(
             manifest=manifest,
-            adviser=Advisor.objects.get(id=request.user),
+            advisor=Advisor.objects.get(user=request.user),
             reviewer=Reviewer.objects.get(id=request.data['reviewer']),
-            remark=request.data['remark'])
+            remark=request.data['remark'],
+            status=request.data['status'])
         manifest.is_complete = True
         manifest.personal_wo = request.data['form']['personal_wo']
         manifest.technical_score = request.data['form']['technical_score']
@@ -90,9 +91,10 @@ def reviewRepeated(request):
     if request.user.is_staff:
         manifest = Manifest.objects.get(id=request.data['manifest'])
         Review.objects.create(manifest=manifest,
-            adviser=Advisor.objects.get(id=request.user),
+            advisor=Advisor.objects.get(user=request.user),
             reviewer=Reviewer.objects.get(id=request.data['reviewer']),
-            remark=request.data['remark'])
+            remark=request.data['remark'],
+            status=request.data['status'])
         manifest.next_review = request.data['next_review']
         manifest.personal_wo = request.data['form']['personal_wo']
         manifest.technical_score = request.data['form']['technical_score']

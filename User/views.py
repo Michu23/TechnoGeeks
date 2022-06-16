@@ -20,10 +20,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Add custom claims
         token['username'] = user.username
-        if user.is_superuser == False:
+        if user.is_lead == True or  user.is_staff == True or  user.is_student == True:
             token['position'] = user.department.name
-        else:
+        elif user.is_superuser == True:
             token['position'] = 'Admin'
+        else:
+            token['position'] = 'Outsider'
         # ...
 
         return token
@@ -89,28 +91,26 @@ def updateProfile(request):
         profile = Profile.objects.get(student=Student.objects.get(user=user))
     else:
         return Response({'error': 'You are not authorized to update profile'})
-    # profile.first_name = request.data['first_name']
-    # profile.last_name = request.data['last_name']
-    # profile.domain = Domain.objects.get(id=request.data['domain']) if request.data['domain'] != None else None
-    # profile.dob = request.data['dob']
-    # profile.gender = request.data['gender']
-    # profile.father = request.data['father']
-    # profile.father_contact = request.data['father_contact']
-    # profile.mother = request.data['mother']
-    # profile.mother_contact = request.data['mother_contact']
-    # profile.guardian = request.data['guardian']
-    # profile.relation = request.data['relation']
-    # profile.address = request.data['address']
-    # profile.village = request.data['village']
-    # profile.taluk = request.data['taluk']
-    # profile.education = request.data['education']
-    # profile.college = request.data['college']
-    # profile.experience = request.data['experience']
-    # profile.company = request.data['company']
-    # profile.designation = request.data['designation']
-    # profile.mobile = request.data['mobile']
-    print(request.data['photo'])
-    profile.photo = base64.b64decode(request.data['photo'])
+    profile.first_name = request.data['first_name']
+    profile.last_name = request.data['last_name']
+    profile.domain = Domain.objects.get(id=request.data['domain']) if request.data['domain'] != None else None
+    profile.dob = request.data['dob']
+    profile.gender = request.data['gender']
+    profile.father = request.data['father']
+    profile.father_contact = request.data['father_contact']
+    profile.mother = request.data['mother']
+    profile.mother_contact = request.data['mother_contact']
+    profile.guardian = request.data['guardian']
+    profile.relation = request.data['relation']
+    profile.address = request.data['address']
+    profile.village = request.data['village']
+    profile.taluk = request.data['taluk']
+    profile.education = request.data['education']
+    profile.college = request.data['college']
+    profile.experience = request.data['experience']
+    profile.company = request.data['company']
+    profile.designation = request.data['designation']
+    profile.mobile = request.data['mobile']
     profile.save()
     serealizer = ProfileSerealizer(profile)
     return Response(serealizer.data)

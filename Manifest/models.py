@@ -21,11 +21,18 @@ class Manifest(models.Model):
         return name
 
 class Review(models.Model):
+    STATUS = (
+        ('Task Completed','Task Completed'),
+        ('Need Improvement','Need Improvement'),
+        ('Task Critical','Task Critical'),
+        ('Repeat Review','Repeat Review'),
+        )
     created = models.DateField(auto_now_add=True)
     manifest = models.ForeignKey(Manifest, on_delete=models.CASCADE)
     reviewer = models.ForeignKey(Reviewer, on_delete=models.SET_NULL, null=True, blank=True)
     advisor = models.ForeignKey(Advisor,  on_delete=models.SET_NULL, null=True, blank=True)
     remark = models.TextField(null=True, default = '')
+    status = models.CharField(max_length=20, choices=STATUS, default='')
 
     def __str__(self):
         name = self.manifest.student_name.user.username + "'s review on "

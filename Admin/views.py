@@ -2,8 +2,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from Batch.models import Batch
-from Batch.models import Group
+from Batch.models import Batch, Group
+from User.models import User
 from .models import Advisor, Reviewer
 from .serializer import AdvisorFullSerealizer, AdvisorHalfSerializer, ReviewerSerializer
 # Create your views here.
@@ -44,7 +44,8 @@ def getAdvisors(request):
 @permission_classes([IsAuthenticated])
 def deleteAdvisor(request):
     if request.user.is_lead:
-        Advisor.objects.filter(id=request.data['id']).delete()
+        advisor = Advisor.objects.filter(id=request.data['id'])
+        User.objects.filter(advisor=advisor[0]).update(is_staff=False)
         return Response({"message": "Advisor deleted successfully"})
     else:
         return Response({"message": "You are not authorized to get Advisors"})
