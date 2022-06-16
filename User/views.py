@@ -10,7 +10,7 @@ from Admin.models import Advisor, Code
 from Student.models import Student
 from Batch.models import Batch
 from .models import User, Profile, Domain, Notification
-from .serializer import UserSerealizer, NotificationSerealizer, ProfileSerealizer, DomainSerealizer
+from .serializer import UserSerealizer, NotificationSerealizer, ProfileSerealizer, DomainSerealizer,getNotificationTypes
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -42,7 +42,7 @@ class RegisterView(generics.CreateAPIView):
 def notification(request):
     user = request.user
     if user.is_lead:
-        notification = NotificationSerealizer(Notification.objects.all(), many=True)
+        notification = NotificationSerealizer(Notification.objects.all().order_by('-id'), many=True)
         datas = {'dept': 'lead', 'notification': notification.data}
     elif user.is_staff:
         notification = NotificationSerealizer(Notification.objects.all(), many=True)
@@ -51,6 +51,33 @@ def notification(request):
         notification = NotificationSerealizer(Notification.objects.exclude(type='BatchShift').exclude(type='Termination').order_by('date'), many=True)
         datas = {'dept': 'student', 'notification': notification.data}
     return Response(datas)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def deleteNotifications(request):
+    user = request.user
+    if user.is_lead:
+        Notification.objects.filter(id=request.data['id']).delete()
+    return Response({'status': 'Success'})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def createNotifications(request):
+    user = request.user
+    if user.is_lead:
+        Notification.objects.create(type = request.data['type'], content = request.data['content'], creator = user.username)
+        return Response({"message": "Notification created successfully"})
+    else:
+        return Response({"message": "You are not authorized to create Notification"})
+    
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def getTypes(request):
+    if request.user.is_lead:
+       types = getNotificationTypes(Notification.objects.all(),many=True).data
+       return Response(types)
+    
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -126,6 +153,11 @@ def createDomain(request):
         return Response({"message": "Domain created successfully"})
     else:
         return Response({"message": "You are not authorized to create Domain"})
+    
+
+
+
+        
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

@@ -18,5 +18,8 @@ urlpatterns = [
     path('delete/domain', views.deleteDomain, name='delete_domain'),
     path('update/domain', views.updateDomain, name='update_domain'),
     path('notification', views.notification, name='notification'),
+    path('create/notification', views.createNotifications, name='create_notification'),
+    path('delete/notification', views.deleteNotifications, name='delete_notification'),
+    path('types', views.getTypes, name='types'),
     path('validate/code', views.isCodeValid, name='is_code_valid'),
 ]

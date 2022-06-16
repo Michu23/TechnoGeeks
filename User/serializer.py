@@ -46,7 +46,13 @@ class ProfileSerealizer(serializers.ModelSerializer):
         model = Profile
         fields = '__all__'
         
+class getNotificationTypes(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ('id','type')
+        
 class NotificationSerealizer(serializers.ModelSerializer):
+    date = serializers.DateTimeField(format="%d/%m/%Y")
     class Meta:
         model = Notification
         fields = '__all__'
