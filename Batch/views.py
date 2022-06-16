@@ -180,8 +180,10 @@ def deleteGroup(request):
 @permission_classes([IsAuthenticated])
 def updateGroup(request):
     if request.user.is_lead:
-        Group.objects.filter(id=request.data['id']).update(name = request.data['name'], batch = Batch.objects.get(id=request.data['batch']),
-         domain = Domain.objects.get(id=request.data['domain']), advisor = Advisor.objects.get(id=request.data['advisor']))
+        if request.data['advisor'] != '':
+            Group.objects.filter(id=request.data['id']).update(name = request.data['new_name'], advisor = Advisor.objects.get(id=request.data['advisor']))
+        else:
+            Group.objects.filter(id=request.data['id']).update(name = request.data['new_name'])
         return Response({"message": "Group updated successfully"})
     else:
         return Response({"message": "You are not authorized to update Group"})
