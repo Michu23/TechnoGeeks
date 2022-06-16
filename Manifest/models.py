@@ -1,5 +1,6 @@
 from django.db import models
 from Student.models import Student
+from Admin.models import Advisor, Reviewer
 
 
 # Create your models here.
@@ -20,20 +21,21 @@ class Manifest(models.Model):
         return name
 
 class Review(models.Model):
-    date = models.DateField(auto_now_add=True)
+    created = models.DateField(auto_now_add=True)
     manifest = models.ForeignKey(Manifest, on_delete=models.CASCADE)
-    reviewer = models.CharField(max_length = 20,null=True, default = '')
+    reviewer = models.ForeignKey(Reviewer, on_delete=models.SET_NULL, null=True, blank=True)
+    advisor = models.ForeignKey(Advisor,  on_delete=models.SET_NULL, null=True, blank=True)
     remark = models.TextField(null=True, default = '')
 
     def __str__(self):
-        name = self.manifest.student_name.user.username + "'s review on " + str(self.date.date()) 
+        name = self.manifest.student_name.user.username + "'s review on "
         return name
 
 class Tasks(models.Model):
     week = models.ForeignKey(Manifest,on_delete=models.CASCADE,null=True)
     taskname = models.CharField(max_length=20,null=True,blank=True)
     status =models.BooleanField(default=False)
-    date = models.DateField(auto_now_add=True)
+    created = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return self.taskname
@@ -42,13 +44,13 @@ class DataStructure(models.Model):
     userid = models.ForeignKey(Student,on_delete=models.CASCADE,null=True)
     title = models.CharField(max_length=20,null=True,blank=True)
     status = models.BooleanField(default=False)
-    date = models.DateField(auto_now_add=True)
+    created = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return self.title
 
 class DS_Review(models.Model):
-    date = models.DateField(auto_now_add=True)
+    created = models.DateField(auto_now_add=True)
     ds = models.ForeignKey(DataStructure, on_delete=models.CASCADE)
     reviewer = models.CharField(max_length = 20,null=True)
     remark = models.TextField(null=True)

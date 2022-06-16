@@ -43,10 +43,11 @@ class ViewStudentSerializer(serializers.ModelSerializer):
 
 
 class MyStudentSerializer(serializers.ModelSerializer):
-    advisor = serializers.CharField(source='group.advisor.user.username', read_only=True)
+    advisor = serializers.CharField(source='group.advisor.user.username', read_only=True, default='No Group')
     week = serializers.CharField()
     pending = serializers.IntegerField()
     name = serializers.CharField(source='user.username')
+    batch = serializers.CharField(source='batch.name')
     class Meta:
         model = Student
-        fields = ['id', 'name', 'advisor', 'week', 'pending']
+        fields = ['id', 'name', 'batch', 'advisor', 'week', 'pending']

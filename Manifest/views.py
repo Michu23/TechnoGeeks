@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
-from Admin.models import Reviewer
+from Admin.models import Reviewer, Advisor
 from .models import Review, Student, Tasks
 from .serializer import StudentTasklistSerializer, ManifestTaskSerealizer
 from Manifest.models import Manifest
@@ -65,9 +65,11 @@ def completeTask(request):
 def reviewPassed(request):
     if request.user.is_staff:
         manifest = Manifest.objects.get(id=request.data['manifest'])
-        Review.objects.create(manifest=manifest,
-                                reviewer=Reviewer.objects.get(id=request.data['reviewer']),
-                                remark=request.data['remark'])
+        Review.objects.create(
+            manifest=manifest,
+            adviser=Advisor.objects.get(id=request.user),
+            reviewer=Reviewer.objects.get(id=request.data['reviewer']),
+            remark=request.data['remark'])
         manifest.is_complete = True
         manifest.personal_wo = request.data['form']['personal_wo']
         manifest.technical_score = request.data['form']['technical_score']
@@ -88,8 +90,9 @@ def reviewRepeated(request):
     if request.user.is_staff:
         manifest = Manifest.objects.get(id=request.data['manifest'])
         Review.objects.create(manifest=manifest,
-                                reviewer=Reviewer.objects.get(id=request.data['reviewer']),
-                                remark=request.data['remark'])
+            adviser=Advisor.objects.get(id=request.user),
+            reviewer=Reviewer.objects.get(id=request.data['reviewer']),
+            remark=request.data['remark'])
         manifest.next_review = request.data['next_review']
         manifest.personal_wo = request.data['form']['personal_wo']
         manifest.technical_score = request.data['form']['technical_score']

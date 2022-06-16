@@ -1,10 +1,11 @@
-from cgi import print_directory
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated, AllowAny
+import base64
+
 from Admin.models import Advisor, Code
 from Student.models import Student
 from Batch.models import Batch
@@ -21,6 +22,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username'] = user.username
         if user.is_superuser == False:
             token['position'] = user.department.name
+        else:
+            token['position'] = 'Admin'
         # ...
 
         return token
@@ -86,19 +89,28 @@ def updateProfile(request):
         profile = Profile.objects.get(student=Student.objects.get(user=user))
     else:
         return Response({'error': 'You are not authorized to update profile'})
-    profile.first_name = request.data['first_name']
-    profile.last_name = request.data['last_name']
-    profile.domain = Domain.objects.get(id=request.data['domain']) if request.data['domain'] != None else None
-    profile.dob = request.data['dob']
-    # profile.gender = request.data['gender'] 
-    profile.address = request.data['address']
-    profile.village = request.data['village']
-    profile.education = request.data['education']
-    profile.college = request.data['college']
-    profile.experience = request.data['experience']
-    profile.company = request.data['company']
-    profile.designation = request.data['designation']
-    profile.mobile = request.data['mobile']
+    # profile.first_name = request.data['first_name']
+    # profile.last_name = request.data['last_name']
+    # profile.domain = Domain.objects.get(id=request.data['domain']) if request.data['domain'] != None else None
+    # profile.dob = request.data['dob']
+    # profile.gender = request.data['gender']
+    # profile.father = request.data['father']
+    # profile.father_contact = request.data['father_contact']
+    # profile.mother = request.data['mother']
+    # profile.mother_contact = request.data['mother_contact']
+    # profile.guardian = request.data['guardian']
+    # profile.relation = request.data['relation']
+    # profile.address = request.data['address']
+    # profile.village = request.data['village']
+    # profile.taluk = request.data['taluk']
+    # profile.education = request.data['education']
+    # profile.college = request.data['college']
+    # profile.experience = request.data['experience']
+    # profile.company = request.data['company']
+    # profile.designation = request.data['designation']
+    # profile.mobile = request.data['mobile']
+    print(request.data['photo'])
+    profile.photo = base64.b64decode(request.data['photo'])
     profile.save()
     serealizer = ProfileSerealizer(profile)
     return Response(serealizer.data)
@@ -127,7 +139,7 @@ def getMyProfile(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def getDomain(request):
-    if request.user.is_lead or request.user.is_student:
+    if request.user.is_lead or request.user.is_student :
         domain = DomainSerealizer(Domain.objects.all(), many=True).data
         return Response(domain)
     else:

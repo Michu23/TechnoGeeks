@@ -9,5 +9,6 @@ urlpatterns = [
     path('view/mystudents', views.getMyStudents, name='get_my_students'),
     path('view/placements', views.getPlacements, name='get_placements'),
     path('manage/student', views.manageStudent, name='manage_student'),
-
+    path('request/shift', views.shiftRequest, name='shift_request'),
+    path('request/terminate', views.terminateRequest, name='terminate_request'),
 ]
