@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from Admin.models import Reviewer, Advisor
 from .models import Review, Student, Tasks
-from .serializer import StudentTasklistSerializer, ManifestTaskSerealizer
+from .serializer import StudentTasklistSerializer, ManifestTaskSerealizer, TasksSerealizer
 from Manifest.models import Manifest
 
 
@@ -103,3 +103,18 @@ def reviewRepeated(request):
         return Response({'success': 'Review repeated'})
     else:
         return Response({'error': 'You are not allowed to perform this action'})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def getPendings(request):
+    if request.user.is_staff or request.user.is_lead:
+        student = Student.objects.get(id=request.data['id'])
+    elif request.user.is_student:
+        student = Student.objects.get(user=request.user)
+    else:
+        return Response({'error': 'You are not allowed to perform this action'})
+    manifests = Manifest.objects.filter(student_name=student)
+    pending = Tasks.objects.filter(week__in=manifests, status=False)
+    serializer = TasksSerealizer(pending, many=True).data
+    return Response(serializer)
+        

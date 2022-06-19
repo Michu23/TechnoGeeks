@@ -35,6 +35,7 @@ class DS_ReviewSerealizer(serializers.ModelSerializer):
 
 class ReviewListSerealizer(serializers.ModelSerializer):
     created = serializers.DateField(format="%d/%m/%Y")
+    reviewer = serializers.CharField(source='reviewer.name')
     class Meta:
         model = Review
         fields = ('id', 'created', 'reviewer', 'remark')
