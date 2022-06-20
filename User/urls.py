@@ -20,6 +20,7 @@ urlpatterns = [
     path('notification', views.notification, name='notification'),
     path('create/notification', views.createNotifications, name='create_notification'),
     path('delete/notification', views.deleteNotifications, name='delete_notification'),
+    path('update/profilephoto', views.updateProfilephoto, name='update_profilephoto'),
     path('types', views.getTypes, name='types'),
     path('getLocations', views.getLocations, name='getLocations'),
     path('getBranches', views.getBranches, name='getBranches'),
