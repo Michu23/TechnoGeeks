@@ -1,4 +1,4 @@
-from email.policy import default
+
 from rest_framework import serializers
 
 from .models import Student, Placement, Shifted
@@ -11,6 +11,7 @@ class StudentSerializer(serializers.ModelSerializer):
     batch = BatchSerializer()
     group = GroupSerializer()
     profile = ProfileSerealizer()
+    week = serializers.CharField()
     class Meta:
         model = Student
         fields = '__all__'

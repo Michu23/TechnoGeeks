@@ -3,9 +3,8 @@ from Batch.models import Batch, Group, Branch
 from User.models import User, Profile, Domain
 
 
+
 # Create your models here.
-
-
 class Student(models.Model):
 
     STATUS=(

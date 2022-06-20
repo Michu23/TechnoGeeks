@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Batch, Group, Location, Branch
+from .models import Batch, Branch, Group,Location
 # Register your models here.
 
 admin.site.register(Batch)
