@@ -7,10 +7,12 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 import base64
 
 from Admin.models import Advisor, Code
+from Manifest.models import Manifest
 from Student.models import Student
-from Batch.models import Batch
+from Batch.models import Batch,Location,Branch
+from Student.serializer import  StudentSerializer
 from .models import User, Profile, Domain, Notification
-from .serializer import UserSerealizer, NotificationSerealizer, ProfileSerealizer, DomainSerealizer,getNotificationTypes
+from .serializer import UserSerealizer, NotificationSerealizer, ProfileSerealizer, DomainSerealizer,getNotificationTypes,LocationSerealizer,BranchSerealizer
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -188,3 +190,36 @@ def isCodeValid(request):
             return Response({"status":200, "message": "advisor"})
     else:
         return Response({"status":200, "message": "student", "batch": batches[0].id})
+
+
+@api_view(['GET'])
+def getLocations(request):
+    locations = LocationSerealizer(Location.objects.all(), many=True).data
+    return Response(locations)
+
+        
+@api_view(['POST'])
+def getBranches(request):
+    print(request.data)
+    location = Location.objects.get(id=request.data['location'])
+    branches = BranchSerealizer(Branch.objects.filter(location=location), many=True).data
+    return Response(branches)
+    
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def getBatchStudents(request):
+    if request.user.is_staff:
+        branch = Branch.objects.get(id=request.data['branch'])
+        students = Student.objects.filter(branch=branch)
+        for student in students:
+            student.week = Manifest.objects.filter(student_name=student)[0]
+            student.week = student.week.title[-2:]
+            student.save()
+        students = StudentSerializer(students, many=True).data
+        return Response(students)
+    else:
+        return Response({"message": "You are not authorized to view Location"})
+
+
+

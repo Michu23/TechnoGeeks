@@ -142,6 +142,7 @@ def shiftPayments(request):
         pay = Payment.objects.filter(student=request.user.student,types='BatchShift')
         if pay:
             if pay[0].status == 'Pending' or pay[0].status == 'Partially':
+                date = datetime.datetime.today()
                 if date>pay[0].expiry_date:
                     pay[0].status = 'Expired'
                     pay[0].save()

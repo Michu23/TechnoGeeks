@@ -21,5 +21,8 @@ urlpatterns = [
     path('create/notification', views.createNotifications, name='create_notification'),
     path('delete/notification', views.deleteNotifications, name='delete_notification'),
     path('types', views.getTypes, name='types'),
+    path('getLocations', views.getLocations, name='getLocations'),
+    path('getBranches', views.getBranches, name='getBranches'),
+    path('getBatchStudents', views.getBatchStudents, name='getBatchStudents'),
     path('validate/code', views.isCodeValid, name='is_code_valid'),
 ]

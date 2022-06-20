@@ -4,7 +4,7 @@ from .models import Department, User, Domain, Profile, Notification
 from Admin.models import Advisor
 from Student.models import Student
 from Manifest.models import Manifest, Review
-from Batch.models import Batch
+from Batch.models import Batch,Location,Branch
 
 class UserSerealizer(serializers.ModelSerializer):
     batch = serializers.CharField(write_only=True)
@@ -55,4 +55,14 @@ class NotificationSerealizer(serializers.ModelSerializer):
     date = serializers.DateTimeField(format="%d/%m/%Y")
     class Meta:
         model = Notification
+        fields = '__all__'
+
+class LocationSerealizer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = '__all__'
+
+class BranchSerealizer(serializers.ModelSerializer):
+    class Meta:
+        model = Branch
         fields = '__all__'
