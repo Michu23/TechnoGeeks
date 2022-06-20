@@ -7,7 +7,7 @@ class Advisor(models.Model):
     profile = models.OneToOneField(Profile,on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.user.username
+        return self.user.username + str(self.id)
 
 class Reviewer(models.Model):
     name = models.CharField(max_length=100)

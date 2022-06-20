@@ -1,4 +1,4 @@
-from calendar import week
+
 from rest_framework import serializers
 
 from .models import Student, Placement, Shifted
@@ -34,9 +34,9 @@ class ShiftedSerializer(serializers.ModelSerializer):
 class ViewStudentSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='user.username')
     domain = serializers.CharField(source='profile.domain.name',read_only=True)
-    group = serializers.CharField(source='group.name',read_only=True)
+    group = serializers.CharField(source='group.name',read_only=True, default='No Group')
     batch = serializers.CharField(source='batch.name',read_only=True)
-    advisor = serializers.CharField(source='batch.advisor.user.username',read_only=True)
+    advisor = serializers.CharField(source='group.advisor.user.username',read_only=True, default='No Group')
     week = serializers.CharField()
     
     class Meta:
