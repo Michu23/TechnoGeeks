@@ -45,8 +45,10 @@ class Profile(models.Model):
 
     first_name = models.CharField(max_length=20,null=True, blank=True, default='')
     last_name = models.CharField(max_length=20,null=True, blank=True, default='')
-    photo = models.ImageField(upload_to='Media/Profile',blank=True, default='Media/Profile/defaultProPic.png')
-    domain = models.ForeignKey(Domain, on_delete=models.SET_NULL,null=True, blank=True)
+    photo = models.CharField(max_length=200,null=True, blank=True, default='https://res.cloudinary.com/da3qthae5/image/upload/v1655698734/my%20files/hus89vdrrn2mzxxi6xo8.jpg')
+    public_id = models.CharField(max_length=100,null=True, blank=True, default='')
+    signature = models.CharField(max_length=100,null=True, blank=True, default='')
+    timestamp = models.CharField(max_length=100,null=True, blank=True, default='')
     dob = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length = 7,choices = GENDER, default = '')
     father = models.CharField(max_length=20,null=True, blank=True, default='')

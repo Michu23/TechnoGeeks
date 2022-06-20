@@ -41,10 +41,10 @@ class DomainSerealizer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 class ProfileSerealizer(serializers.ModelSerializer):
-    domain = DomainSerealizer()
+    domain = serializers.IntegerField(source='student.domain.id', read_only=True)
     class Meta:
         model = Profile
-        fields = '__all__'
+        fields = '__all__' 
         
 class getNotificationTypes(serializers.ModelSerializer):
     class Meta:

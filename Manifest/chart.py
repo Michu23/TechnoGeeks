@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Avg, Sum, Count
 
 from Student.models import Placement
-from Admin.models import Advisor
+from Payment.models import Payment
 from User.models import Domain
 from Manifest.models import Manifest
 from .models import Review, Student
@@ -151,6 +151,34 @@ def getChartdata(request):
             R_reviews = Review.objects.values('reviewer__name').annotate(count=Count('reviewer__name')).order_by('-count')[:10]
             A_reviews = Review.objects.values('advisor__user__username').annotate(count=Count('advisor__user__username')).order_by('-count')[:10]
             S_reviews = Review.objects.values('manifest__student_name__user__username').annotate(count=Count('manifest__student_name__user__username')).order_by('-count')[:10]
+            students = Student.objects.filter(status="Training")
+            payments = Payment.objects.filter(month=now.strftime("%B"), types__in=['Upfront', 'Rent'])
+            upfront_cash = payments.filter(types='Upfront').aggregate(Sum('cash'))['cash__sum']
+            upfront_upi = payments.filter(types='Upfront').aggregate(Sum('upi'))['upi__sum']
+            rent_cash = payments.filter(types='Rent').aggregate(Sum('cash'))['cash__sum']
+            rent_upi = payments.filter(types='Rent').aggregate(Sum('upi'))['upi__sum']
+            upfront = (upfront_cash if upfront_cash is not None else 0) + (upfront_upi if upfront_upi is not None else 0)
+            rent = (rent_cash if rent_cash is not None else 0) + (rent_upi if rent_upi is not None else 0)
+            chartData.append(
+                # this is the data of count of overall students for each domain
+                {"data":
+                    {"labels": ["Upfront", "ISI"],
+                    "label":"Count of Upfront and ISI",
+                    "data": [students.filter(fee="Upfront").count(), students.filter(fee="ISI").count()],
+                    "bgColor": [colorCreater('0.4'), colorCreater('0.4')],
+                    # "brColor": [colorCreater('1'), colorCreater('1')],
+                    "brWidth": 1},
+                "type":"pie"})
+            chartData.append(
+                # this is the data of count of overall students for each domain
+                {"data":
+                    {"labels": ["Rent", "Upfront"],
+                    "label":"Total Rent and Upfront of this month",
+                    "data": [rent, upfront],
+                    "bgColor": [colorCreater('0.4'), colorCreater('0.4')],
+                    # "brColor": [colorCreater('1'), colorCreater('1')],
+                    "brWidth": 1},
+                "type":"pie"})
             chartData.append(
                 # this is the data of review count of reviewers 
                 {"data":

@@ -88,12 +88,14 @@ def updateProfile(request):
     if user.is_staff:
             profile = Profile.objects.get(advisor=Advisor.objects.get(user=user))
     elif user.is_student:
-        profile = Profile.objects.get(student=Student.objects.get(user=user))
+        student = Student.objects.get(user=user)
+        profile = Profile.objects.get(student=student)
+        student.domain = Domain.objects.get(id=request.data['domain'])
+        student.save()
     else:
         return Response({'error': 'You are not authorized to update profile'})
     profile.first_name = request.data['first_name']
     profile.last_name = request.data['last_name']
-    profile.domain = Domain.objects.get(id=request.data['domain']) if request.data['domain'] != None else None
     profile.dob = request.data['dob']
     profile.gender = request.data['gender']
     profile.father = request.data['father']
@@ -188,3 +190,19 @@ def isCodeValid(request):
             return Response({"status":200, "message": "advisor"})
     else:
         return Response({"status":200, "message": "student", "batch": batches[0].id})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def updateProfilephoto(request):
+    if request.user.is_staff:
+        profile = Profile.objects.get(advisor=Advisor.objects.get(user=request.user))
+    elif request.user.is_student:
+        profile = Profile.objects.get(student=Student.objects.get(user=request.user))
+    else:
+        return Response({"message": "You are not authorized to update profile"})
+    profile.photo = request.data['secure_url']
+    profile.public_id = request.data['public_id']
+    profile.signature = request.data['signature']
+    profile.timestamp = request.data['timestamp']
+    profile.save()
+    return Response({"message": "Profile photo updated successfully"})
