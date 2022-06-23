@@ -10,7 +10,7 @@ from Admin.models import Advisor, Code
 from Manifest.models import Manifest
 from Student.models import Student
 from Batch.models import Batch,Location,Branch
-from Student.serializer import  StudentSerializer
+from Student.serializer import  LocationStudentSerializer
 from .models import User, Profile, Domain, Notification
 from .serializer import UserSerealizer, NotificationSerealizer, ProfileSerealizer, DomainSerealizer,getNotificationTypes,LocationSerealizer,BranchSerealizer
 
@@ -181,17 +181,17 @@ def updateDomain(request):
         return Response({"message": "You are not authorized to update Domain"})
 
 @api_view(['POST'])
-def isCodeValid(request):
-    code = request.data['code']
-    batches = Batch.objects.filter(code=code)
-    if len(batches) == 0:
-        advisor = Code.objects.filter(code=code)
-        if len(advisor) == 0:
-            return Response({"status":400, "message": "Code is not valid"})
-        else:
-            return Response({"status":200, "message": "advisor"})
+def isLinkValid(request):
+    link = request.data['link']
+    print(link)
+    if Batch.objects.filter(code=link).exists():
+        batch = Batch.objects.get(code=link)
+        return Response({"status":200, "message": "student", "batch": batch.id})
     else:
-        return Response({"status":200, "message": "student", "batch": batches[0].id})
+        if Code.objects.filter(code=link).exists():
+            return Response({"status":200, "message": "advisor"})
+        else:
+            return Response({"status":400, "message": "Code is not valid"})
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -233,7 +233,7 @@ def getBatchStudents(request):
             student.week = Manifest.objects.filter(student_name=student)[0]
             student.week = student.week.title[-2:]
             student.save()
-        students = StudentSerializer(students, many=True).data
+        students = LocationStudentSerializer(students, many=True).data
         return Response(students)
     else:
         return Response({"message": "You are not authorized to view Location"})

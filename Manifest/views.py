@@ -116,5 +116,6 @@ def getPendings(request):
     manifests = Manifest.objects.filter(student_name=student)
     pending = Tasks.objects.filter(week__in=manifests, status=False)
     serializer = TasksSerealizer(pending, many=True).data
+    print(serializer)
     return Response(serializer)
         

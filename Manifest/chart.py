@@ -5,11 +5,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Avg, Sum, Count
 
-from Student.models import Placement
+from Student.models import Placement, Student
 from Payment.models import Payment
 from User.models import Domain
-from Manifest.models import Manifest
-from .models import Review, Student
+from .models import Manifest, Review
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -40,8 +39,43 @@ def getChartdata(request):
             "type":"line"}]
         return Response(chartData)
     elif request.user.is_staff:
-        pass
-        return Response([])
+        chartData = []
+        advisor = request.user.advisor
+        reviews = Review.objects.filter(advisor=advisor)
+        chartData.append(
+                # this is the data of count of on going students for each domain
+                {"data":
+                    {"labels": [day.strftime("%A") for day in getDays(7)],
+                    "title":"By Day",
+                    "data": [
+                        {"label":"You", "data": [reviews.filter(created=day).count() for day in getDays(7)],
+                        "backgroundColor": colorCreater("0.4"),
+                        "borderColor": colorCreater("1")}],
+                    "brWidth": 1},
+                "type":"line"})
+        chartData.append(
+                # this is the data of count of on going students for each domain
+                {"data":
+                    {"labels": [week[0].strftime("%d/%m")+"-"+week[1].strftime("%d/%m") for week in getWeeks(6)],
+                    "title":"By Week",
+                    "data": [
+                        {"label":"You", "data": [reviews.filter(created__in=week).count() for week in getWeeks(6)],
+                        "backgroundColor": colorCreater("0.4"),
+                        "borderColor": colorCreater("1")}],
+                    "brWidth": 1},
+                "type":"line"})
+        chartData.append(
+                # this is the data of count of on going students for each domain
+                {"data":
+                    {"labels": [month.strftime("%B") for month in getMonths(6)],
+                    "title":"By Month",
+                    "data": [
+                        {"label":"You", "data": [reviews.filter(created=month).count() for month in getMonths(6)],
+                        "backgroundColor": colorCreater("0.4"),
+                        "borderColor": colorCreater("1")}],
+                    "brWidth": 1},
+                "type":"line"})
+        return Response(chartData)
     elif request.user.is_lead:
         chartData = []
         if request.user.department.name == "Lead":
@@ -53,7 +87,7 @@ def getChartdata(request):
             overallBg = []
             overallBr = []
             for domain in domains:
-                students = Student.objects.filter(profile__domain=domain)
+                students = Student.objects.filter(domain=domain)
                 overall.append(students.count())
                 onGoing.append(students.filter(status="Training").count())
                 onGoingBg.append(colorCreater("0.4"))
@@ -97,7 +131,7 @@ def getChartdata(request):
                     "title":"Placed",
                     "data": [
                         {"label":domain.name, "data": [placemnts.filter(created__month=month.strftime("%m"),
-                        student__profile__domain__name=domain.name).count() for month in months],
+                        student__domain__name=domain.name).count() for month in months],
                         "backgroundColor": colorCreater("0.4"),
                         "borderColor": colorCreater("1")} for domain in domains],
                     "brWidth": 1},
@@ -110,7 +144,7 @@ def getChartdata(request):
                     "data": [
                         {"label":domain.name, 
                         "data": [toInt(placemnts.filter(created__month=month.strftime("%m"),
-                            student__profile__domain__name=domain.name).aggregate(Avg('LPA'))["LPA__avg"]) for month in months],
+                            student__domain__name=domain.name).aggregate(Avg('LPA'))["LPA__avg"]) for month in months],
                         "backgroundColor": colorCreater("0.4"),
                         "borderColor": colorCreater("1")} for domain in domains],
                     "brWidth": 1},
@@ -124,7 +158,7 @@ def getChartdata(request):
                         {"label": "LPA", 
                         "backgroundColor": colorCreater("1"),
                          "borderColor": colorCreater("1"),
-                         "data":[toInt(placemnts.filter(student__profile__domain__name=domain.name).aggregate(Sum('LPA'))["LPA__sum"]) for domain in domains]},
+                         "data":[toInt(placemnts.filter(student__domain__name=domain.name).aggregate(Sum('LPA'))["LPA__sum"]) for domain in domains]},
                         ],
                     "brWidth": 1},
                 "type":"bar"})
@@ -143,10 +177,7 @@ def getChartdata(request):
                 "type":"bar"})
         if request.user.department.name == "Finance" or request.user.department.name == "Lead":
             now = datetime.now()
-            months = [now]
-            for _ in range(0, 3):
-                now = now.replace(day=1) - timedelta(days=1)
-                months.append(now)
+            months = getMonths(6)
             domains = Domain.objects.all()
             R_reviews = Review.objects.values('reviewer__name').annotate(count=Count('reviewer__name')).order_by('-count')[:10]
             A_reviews = Review.objects.values('advisor__user__username').annotate(count=Count('advisor__user__username')).order_by('-count')[:10]
@@ -230,3 +261,27 @@ def toInt(num):
 def colorCreater(opcity):
     color = [random.choice(range(240)) for i in range(3)]
     return "rgb("+str(color[0])+", "+str(color[1])+", "+str(color[2])+", "+opcity+")"
+
+def getMonths(count):
+    now = datetime.now()
+    months = [now]
+    for _ in range(0, int(count)-1):
+        now = now.replace(day=1) - timedelta(days=1)
+        months.append(now)
+    return months
+
+def getWeeks(count):
+    now = datetime.now()
+    weeks = []
+    for _ in range(0, int(count)):
+        weeks.append([now, now-timedelta(days=6)])
+        now = now - timedelta(days=7)
+    return weeks
+
+def getDays(count):
+    now = datetime.now()
+    days = [now]
+    for _ in range(0, int(count)-1):
+        now = now - timedelta(days=1)
+        days.append(now)
+    return days
