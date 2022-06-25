@@ -116,6 +116,13 @@ def getPendings(request):
     manifests = Manifest.objects.filter(student_name=student)
     pending = Tasks.objects.filter(week__in=manifests, status=False)
     serializer = TasksSerealizer(pending, many=True).data
-    print(serializer)
     return Response(serializer)
         
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def folderSubmit(request):
+    if request.user.is_student:
+        Manifest.objects.filter(id=request.data['manifest']).update(folder=request.data['folder'])
+        return Response({'success': 'Folder submitted'})
+    else:
+        return Response({'error': 'You are not allowed to perform this action'})
