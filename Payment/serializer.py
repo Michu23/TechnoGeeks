@@ -7,4 +7,11 @@ class PaymentSerializer(serializers.ModelSerializer):
     batch = serializers.CharField(source='student.batch.name')
     class Meta:
         model = Payment
-        fields = ['id', 'student', 'batch','month','amount', 'totalamt', 'paid_date','types','status','paid']
+        fields = ['id', 'student', 'batch','month','amount', 'totalamt', 'paid_date','types','status','paid','paymentid']
+
+class OrderSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Payment
+        fields = '__all__'
+        depth = 2

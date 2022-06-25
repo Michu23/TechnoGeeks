@@ -1,12 +1,15 @@
+import json
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 import datetime
 from .models import Payment
-from .serializer import PaymentSerializer
+from .serializer import PaymentSerializer,OrderSerializer
 from django.db.models import Q
 from datetime import timedelta
+import razorpay
+client = razorpay.Client(auth=("rzp_test_KgiLdhTO6F4BS3", "XBUSNhYRLL2J6eODHO4aw18W"))
 
 
 # Create your views here.
@@ -43,7 +46,7 @@ def rentPayments(request):
             
             if pay[0].status == 'Pending' or pay[0].status == 'Partially':
                 context = {
-                    'id':pay[0].id,
+                    'id':pay[0].paymentid,
                     'amount':pay[0].amount,
                     'type':pay[0].types,
                     'status':pay[0].status,
@@ -52,18 +55,36 @@ def rentPayments(request):
             else:
                 return Response({'status':'Paid'})
         elif date.day <= 3:
-            pay = Payment.objects.create(student=student,amount=amount,totalamt=amount,types='Rent',status='Pending',month=month)
+            rpay= client.order.create({
+            "amount": amount*100,
+            "currency": "INR",
+            "partial_payment": True,
+            "notes": {
+                "Type": "Rent",
+                "Student": student.user.username,
+            }
+            })
+            pay = Payment.objects.create(student=student,amount=amount,totalamt=amount,types='Rent',status='Pending',month=month,paymentid=rpay['id'])
             context = {
-                'id':pay.id,
+                'id':pay.paymentid,
                 'amount':pay.totalamt,
                 'type':pay.types,
                 'status':pay.status,
             }
             return Response(context)
         elif len(pay2) is 0:
-            newpay = Payment.objects.create(student=student,amount=amount,totalamt=amount,types='Rent',status='Expired',month=month)
+            newrpay = client.order.create({
+            "amount": amount*100,
+            "currency": "INR",
+            "partial_payment": True,
+            "notes": {
+                "Type": "Rent",
+                "Student": student.user.username,
+            }
+            })
+            newpay = Payment.objects.create(student=student,amount=amount,totalamt=amount,types='Rent',status='Expired',month=month,paymentid=newrpay['id'])
             context = {
-                'id':newpay.id,
+                'id':newpay.paymentid,
                 'amount':newpay.totalamt,
                 'type':newpay.types,
                 'status':newpay.status,
@@ -84,9 +105,7 @@ def upfrontPayments(request):
         date_joined = request.user.date_joined
         start = date_joined+timedelta(3)
         expiry = date_joined+timedelta(6)
-              
-        
-        
+
         pay = Payment.objects.filter(student=request.user.student,month=month,types='Upfront')
         if pay:
             if pay[0].status == 'Pending' or pay[0].status == 'Partially':
@@ -97,7 +116,7 @@ def upfrontPayments(request):
                         
             if pay[0].status == 'Pending' or pay[0].status == 'Partially':
                 context = {
-                    'id':pay[0].id,
+                    'id':pay[0].paymentid,
                     'amount':pay[0].amount,
                     'type':pay[0].types,
                     'status':pay[0].status,
@@ -120,10 +139,20 @@ def upfrontPayments(request):
                     amount = 9000
                 else:
                     return Response({'status':'Paid'})
+
+                rpay= client.order.create({
+                "amount": amount*100,
+                "currency": "INR",
+                "partial_payment": True,
+                "notes": {
+                    "Type": "Upfront",
+                    "Student": student.user.username,
+                }
+                })
                     
-                pay = Payment.objects.create(student=student,totalamt=amount,amount=amount,types='Upfront',status='Pending',month=month,expiry_date=expiry)
+                pay = Payment.objects.create(student=student,totalamt=amount,amount=amount,types='Upfront',status='Pending',month=month,expiry_date=expiry,paymentid=rpay['id'])
                 context = {
-                    'id':pay.id,
+                    'id':pay.paymentid,
                     'amount':pay.totalamt,
                     'type':pay.types,
                     'status':pay.status,
@@ -152,7 +181,7 @@ def shiftPayments(request):
                 pass
             if pay[0].status == 'Pending' or pay[0].status == 'Partially':
                 context = {
-                    'id':pay[0].id,
+                    'id':pay[0].paymentid,
                     'amount':pay[0].totalamt,
                     'type':pay[0].types,
                     'status':pay[0].status,
@@ -162,33 +191,85 @@ def shiftPayments(request):
                 return Response({'status':'Paid'})
         else:
             return Response({'status':'Paid'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def start_payment(request):
+
+    print(request.data)
+    amount = request.data['amount']
+    theid = request.data['id']
+    
+    payment=client.order.fetch(theid)
+
+    # we are saving an order with isPaid=False
+    order = Payment.objects.get(paymentid=theid)
+
+    serializer = OrderSerializer(order)
+
+    data = {
+        "payment": payment,
+        "order": serializer.data
+    }
+    return Response(data)
             
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def paying(request):
     if request.user.is_student:
-        ids=request.data['id']
-        types=request.data['type']
-        amount = int(request.data['amount'])
+        res = json.loads(request.data["response"])
+        print(res)
+
+        ord_id = ""
+        raz_pay_id = ""
+        raz_signature = ""
+
+        # res.keys() will give us list of keys in res
+        for key in res.keys():
+            if key == 'razorpay_order_id':
+                ord_id = res[key]
+            elif key == 'razorpay_payment_id':
+                raz_pay_id = res[key]
+            elif key == 'razorpay_signature':
+                raz_signature = res[key]
+
         date = datetime.date.today()
-        month = date.strftime("%B")
-        pay = Payment.objects.filter(id=ids,student=request.user.student,types=types,month=month)
-        if pay:
-            if pay[0].amount == amount:
-                pay[0].paid=amount
-                pay[0].status = 'Completed'
-                pay[0].amount = pay[0].amount - amount
-                pay[0].upi = amount
-                pay[0].cash = 0
-                pay[0].paid_date= date
-                pay[0].save()
+        pay = Payment.objects.get(paymentid=ord_id)
+        data = {
+        'razorpay_order_id': ord_id,
+        'razorpay_payment_id': raz_pay_id,
+        'razorpay_signature': raz_signature
+        }
+        print(data)
+
+        client = razorpay.Client(auth=("rzp_test_KgiLdhTO6F4BS3", "XBUSNhYRLL2J6eODHO4aw18W"))
+        check = client.utility.verify_payment_signature(data)
+        print(check)
+
+        payment = client.order.fetch(ord_id)
+        print(payment['amount'])
+        
+        if check and pay.status is not 'Completed':
+            if  payment['amount'] == payment['amount_paid']:
+                pay.paid=payment['amount']/100
+                pay.status = 'Completed'
+                pay.amount = payment['amount_due']/100
+                pay.upi = payment['amount']
+                pay.cash = 0
+                pay.paid_date= date
+                pay.save()
                 return Response({'status':'Paid'})
-            elif pay[0].amount > amount:
-                pay[0].status = 'Partially'
-                pay[0].paid =pay[0].paid + amount
-                pay[0].amount = pay[0].totalamt-pay[0].paid
-                pay[0].save()
+
+            elif payment['amount'] > payment['amount_paid']:
+                pay.status = 'Partially'
+                pay.paid =payment['amount_paid']/100
+                pay.amount = payment['amount_due']/100
+                pay.save()
                 return Response({'status':'Partially'})
+
+        else:
+            return Response({'status':'Failed'})
             
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -222,7 +303,7 @@ def cashPaid(request):
     if request.user.is_lead:
         ids = request.data['id']
         date = datetime.date.today()
-        pay = Payment.objects.filter(id=ids)
+        pay = Payment.objects.filter(paymentid=ids)
         if pay:
             pay[0].paid=pay[0].paid + pay[0].amount
             pay[0].status = 'Completed'
@@ -237,10 +318,15 @@ def cashPaid(request):
 @permission_classes([IsAuthenticated])
 def sendForm(request):
     if request.user.is_lead:
+        fine=400
         ids = request.data['id']
+        print(ids)
         next_day = datetime.datetime.now()+timedelta(1)
         date = datetime.date.today()
-        pay = Payment.objects.filter(id=ids)
+        pay = Payment.objects.filter(paymentid=ids)
+        newamount = int(pay[0].amount+fine)*100
+        print(newamount)
+
         if pay:
             if pay[0].status == 'Expired':
                 if pay[0].paid == 0:
