@@ -12,4 +12,5 @@ urlpatterns = [
     path('review/repeated', views.reviewRepeated, name='review_repeated'),
     path('add/task', views.addTask, name='add_task'),
     path('complete/task', views.completeTask, name='complete_task'),
+    path('folder/submit', views.folderSubmit, name='folder_submit'),
 ]

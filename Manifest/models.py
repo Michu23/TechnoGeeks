@@ -15,6 +15,7 @@ class Manifest(models.Model):
     misc_score = models.IntegerField(null=True, default = 0)
     is_complete = models.BooleanField(default=False)
     next_review = models.DateField(null=True)
+    folder = models.CharField(max_length = 255, default = '')
 
     def __str__(self):
         name = self.title + ' of ' + self.student_name.user.username + ' ' + str(self.id)

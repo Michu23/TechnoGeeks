@@ -1,5 +1,5 @@
 from django.db import models
-from Admin.models import Advisor
+from Admin.models import Advisor, Location
 from User.models import Domain
 
 # Create your models here.
@@ -24,11 +24,6 @@ class Group(models.Model):
     def __str__(self):
         return self.name
 
-class Location(models.Model):
-    place = models.CharField(max_length=30)
-
-    def __str__(self):
-        return self.place
     
 class Branch(models.Model):
     name = models.CharField(max_length=30)

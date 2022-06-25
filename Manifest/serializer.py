@@ -61,4 +61,4 @@ class ManifestTaskSerealizer(serializers.ModelSerializer):
     tasks = TaskSerealizer(many=True)
     class Meta:
         model = Manifest
-        fields = ['id', 'title', 'student_name', 'personal_wo', 'technical_score', 'misc_score', 'is_complete', 'tasks']
+        fields = ['id', 'title', 'student_name', 'personal_wo', 'technical_score', 'misc_score', 'is_complete', 'tasks', 'folder']

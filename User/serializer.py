@@ -3,7 +3,7 @@ from rest_framework import serializers
 from .models import Department, User, Domain, Profile, Notification
 from Admin.models import Advisor
 from Student.models import Student
-from Manifest.models import Manifest, Review
+from Manifest.models import Manifest
 from Batch.models import Batch,Location,Branch
 
 class UserSerealizer(serializers.ModelSerializer):
