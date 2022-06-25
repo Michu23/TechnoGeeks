@@ -11,13 +11,14 @@ from .models import Batch, Group
 from Admin.models import Advisor
 from User.models import Domain
 from .serializer import StudentGroupSerializer, ViewBatchSerializer, ViewGroupSerializer, ViewGroupDetailsSerializer, GroupStudentDetailsSerializer
+from .utils import generateLink
 # Create your views here.
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def getBatches(request):
-    if request.user.is_lead:
+    if request.user.is_lead or request.user.is_staff:
         batchs = Batch.objects.all()
         batchsArray = []
         for batch in batchs:
@@ -35,7 +36,7 @@ def getBatches(request):
 def createBatch(request):
     if request.user.is_lead:
         advisor = Advisor.objects.get(id=request.data['advisor'])
-        Batch.objects.create( name=request.data['name'], advisor=advisor)
+        Batch.objects.create( name=request.data['name'], advisor=advisor, code=generateLink(request.data['name']))
         return Response({"message": "Batch created successfully"})
     else:
         return Response({"message": "You are not authorized to create Batch"})
@@ -53,7 +54,7 @@ def deleteBatch(request):
 @permission_classes([IsAuthenticated])
 def updateBatch(request):
     if request.user.is_lead:
-        Batch.objects.filter(id=request.data['id']).update(advisor=request.data['advisor'], code=request.data['code'])
+        Batch.objects.filter(id=request.data['id']).update(advisor=request.data['advisor'])
         return Response({"message": "Batch updated successfully"})
     else:
         return Response({"message": "You are not authorized to update Batch"})
@@ -92,7 +93,7 @@ def getMyGroups(request):
 @permission_classes([IsAuthenticated])
 def getGroupLess(request):
     if request.user.is_lead:
-        students = Student.objects.filter(group = None,profile__domain__name=request.data['domain'], batch__name=request.data['batch'])
+        students = Student.objects.filter(group = None,domain__name=request.data['domain'], batch__name=request.data['batch'])
         for student in students:
             [student.week] = Manifest.objects.filter(student_name=student)[:1]
             student.week = student.week.title

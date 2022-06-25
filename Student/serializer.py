@@ -11,7 +11,6 @@ class StudentSerializer(serializers.ModelSerializer):
     batch = BatchSerializer()
     group = GroupSerializer()
     profile = ProfileSerealizer()
-    week = serializers.CharField()
     class Meta:
         model = Student
         fields = '__all__'
@@ -72,3 +71,13 @@ class ShiftRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shifted
         fields = ['id', 'name', 'batch', 'advisor', 'week']
+
+class LocationStudentSerializer(serializers.ModelSerializer):
+    user = UserSerealizer()
+    batch = BatchSerializer()
+    group = GroupSerializer()
+    profile = ProfileSerealizer()
+    week = serializers.CharField()
+    class Meta:
+        model = Student
+        fields = '__all__'
