@@ -54,7 +54,7 @@ class getNotificationTypes(serializers.ModelSerializer):
         fields = ('id','type')
         
 class NotificationSerealizer(serializers.ModelSerializer):
-    date = serializers.DateTimeField(format="%d/%m/%Y")
+    created = serializers.DateTimeField(read_only=True, format="%d/%m/%Y")
     class Meta:
         model = Notification
         fields = '__all__'

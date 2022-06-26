@@ -48,18 +48,13 @@ class RegisterView(generics.CreateAPIView):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def notification(request):
+def getNotifications(request):
     user = request.user
-    if user.is_lead:
-        notification = NotificationSerealizer(Notification.objects.all().order_by('-id'), many=True)
-        datas = {'dept': 'lead', 'notification': notification.data}
-    elif user.is_staff:
-        notification = NotificationSerealizer(Notification.objects.all(), many=True)
-        datas = {'dept': 'advisor', 'notification': notification.data}
+    if user.is_lead or user.is_staff:
+        notification = NotificationSerealizer(Notification.objects.all().order_by('-id'), many=True).data
     else:
-        notification = NotificationSerealizer(Notification.objects.exclude(type='BatchShift').exclude(type='Termination').order_by('date'), many=True)
-        datas = {'dept': 'student', 'notification': notification.data}
-    return Response(datas)
+        notification = NotificationSerealizer(Notification.objects.exclude(type='BatchShift').exclude(type='Termination').order_by('-id'), many=True).data
+    return Response(notification)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
