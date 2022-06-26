@@ -10,6 +10,7 @@ class Batch(models.Model):
     name = models.CharField(max_length=15, null=True)
     advisor = models.ForeignKey(Advisor,on_delete=models.SET_NULL,null=True)
     created_at = models.DateField(auto_now_add=True)
+    location = models.ForeignKey(Location, on_delete=models.SET_NULL, default=1, null=True)
 
     def __str__(self):
         name = self.name + ' ' + str(self.id)

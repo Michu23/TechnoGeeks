@@ -186,10 +186,12 @@ def isLinkValid(request):
     print(link)
     if Batch.objects.filter(code=link).exists():
         batch = Batch.objects.get(code=link)
-        return Response({"status":200, "message": "student", "batch": batch.id})
+        branches = BranchSerealizer(Branch.objects.filter(location=batch.location), many=True).data
+        return Response({"status":200, "message": "student", "batch": batch.id, "branches": branches})
     else:
         if Code.objects.filter(code=link).exists():
-            return Response({"status":200, "message": "advisor"})
+            locations = LocationSerealizer(Location.objects.all(), many=True).data
+            return Response({"status":200, "message": "advisor", "branches": locations})
         else:
             return Response({"status":400, "message": "Code is not valid"})
 
