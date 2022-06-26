@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Advisor, Reviewer, Code
+from .models import Advisor, Reviewer, Code, Lead
 from User.serializer import UserSerealizer, ProfileSerealizer
 
 class AdvisorSerializer(serializers.ModelSerializer):
@@ -23,6 +23,12 @@ class  AdvisorHalfSerializer(serializers.ModelSerializer):
 class CodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Code
+        fields = '__all__'
+
+class LeadSerealizer(serializers.ModelSerializer):
+    user = UserSerealizer()
+    class Meta:
+        model = Lead
         fields = '__all__'
 
 class AdvisorFullSerealizer(serializers.ModelSerializer):
