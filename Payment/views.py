@@ -325,7 +325,6 @@ def sendForm(request):
         date = datetime.date.today()
         pay = Payment.objects.filter(paymentid=ids)
         newamount = int(pay[0].amount+fine)*100
-        print(newamount)
 
         if pay:
             if pay[0].status == 'Expired':

@@ -188,3 +188,4 @@ def updateGroup(request):
         return Response({"message": "Group updated successfully"})
     else:
         return Response({"message": "You are not authorized to update Group"})
+        
