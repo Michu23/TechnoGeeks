@@ -22,10 +22,10 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Add custom claims
         token['username'] = user.username
-        if user.is_lead == True or  user.is_staff == True or  user.is_student == True:
-            token['position'] = user.department.name
-        elif user.is_superuser == True:
+        if user.is_superuser:
             token['position'] = 'Admin'
+        elif user.is_lead or user.is_staff or  user.is_student:
+            token['position'] = user.department.name
         else:
             token['position'] = 'Outsider'
         # ...
