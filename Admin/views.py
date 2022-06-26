@@ -4,8 +4,8 @@ from rest_framework.response import Response
 
 from Batch.models import Batch, Group
 from User.models import User
-from .models import Advisor, Reviewer
-from .serializer import AdvisorFullSerealizer, AdvisorHalfSerializer, ReviewerSerializer
+from .models import Advisor, Reviewer, Code
+from .serializer import AdvisorFullSerealizer, AdvisorHalfSerializer, ReviewerSerializer, CodeSerializer
 # Create your views here.
 
 @api_view(['POST'])
@@ -36,7 +36,9 @@ def getAdvisors(request):
             advisor.group = Group.objects.filter(advisor=advisor)
             advisor.save()
         advisors_serializer = AdvisorFullSerealizer(advisors, many=True)
-        return Response(advisors_serializer.data)
+        code = Code.objects.all()[0]
+        code_serializer = CodeSerializer(code).data
+        return Response({"advisors":advisors_serializer.data,"link":code_serializer})
     else:
         return Response({"message": "You are not authorized to get Advisors"})
 

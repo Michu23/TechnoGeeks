@@ -66,7 +66,7 @@ class Profile(models.Model):
     company = models.CharField(max_length=20,null=True, blank=True, default='')
     designation = models.CharField(max_length=20,null=True, blank=True, default='')
     mobile = models.BigIntegerField(null=True, blank=True, default=None)
-    govtid = models.ImageField(upload_to='Media/Id',blank=True)
+    govtid = models.CharField(max_length=200,null=True, blank=True)
 
     def __str__(self):
         try:

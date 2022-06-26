@@ -115,6 +115,7 @@ def updateProfile(request):
     profile.company = request.data['company']
     profile.designation = request.data['designation']
     profile.mobile = request.data['mobile']
+    profile.govtid = request.data['govtid']
     profile.save()
     serealizer = ProfileSerealizer(profile)
     return Response(serealizer.data)
@@ -158,11 +159,6 @@ def createDomain(request):
     else:
         return Response({"message": "You are not authorized to create Domain"})
     
-
-
-
-        
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def deleteDomain(request):
