@@ -159,11 +159,6 @@ def createDomain(request):
     else:
         return Response({"message": "You are not authorized to create Domain"})
     
-
-
-
-        
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def deleteDomain(request):
