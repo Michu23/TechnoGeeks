@@ -19,6 +19,7 @@ class Payment(models.Model):
     ('Rent','Rent'),
     ('BatchShift','BatchShift'),
     ('Upfront','Upfront'),
+    ('Fine','Fine'),
     )
     
     MONTH = (

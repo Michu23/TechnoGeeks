@@ -40,7 +40,7 @@ def rentPayments(request):
             
         if pay:
             if pay[0].status == 'Pending' or pay[0].status == 'Partially':
-                if date.day>12 and date>pay[0].expiry_date:
+                if date.day>4 and date>pay[0].expiry_date:
                     pay[0].status = 'Expired'
                     pay[0].save()
             
@@ -168,10 +168,10 @@ def upfrontPayments(request):
 @permission_classes([IsAuthenticated])
 def shiftPayments(request):
     if request.user.is_student:
+        date = datetime.date.today()
         pay = Payment.objects.filter(student=request.user.student,types='BatchShift')
         if pay:
             if pay[0].status == 'Pending' or pay[0].status == 'Partially':
-                date = datetime.datetime.today()
                 if date>pay[0].expiry_date:
                     pay[0].status = 'Expired'
                     pay[0].save()
@@ -179,6 +179,31 @@ def shiftPayments(request):
                     pass
             else:
                 pass
+            if pay[0].status == 'Pending' or pay[0].status == 'Partially':
+                context = {
+                    'id':pay[0].paymentid,
+                    'amount':pay[0].totalamt,
+                    'type':pay[0].types,
+                    'status':pay[0].status,
+                    }
+                return Response(context)
+            else:
+                return Response({'status':'Paid'})
+        else:
+            return Response({'status':'Paid'})
+            
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def FinePayments(request):
+    if request.user.is_student:
+        date = datetime.date.today()
+        pay = Payment.objects.filter(types="Fine").order_by('-id')
+        if pay:
+            if pay[0].status == 'Pending' or pay[0].status == 'Partially':
+                if date>pay[0].expiry_date:
+                    pay[0].status = 'Expired'
+                    pay[0].save()
+                
             if pay[0].status == 'Pending' or pay[0].status == 'Partially':
                 context = {
                     'id':pay[0].paymentid,
@@ -318,24 +343,52 @@ def cashPaid(request):
 @permission_classes([IsAuthenticated])
 def sendForm(request):
     if request.user.is_lead:
-        fine=400
         ids = request.data['id']
+        amount = request.data['amount']
         print(ids)
         next_day = datetime.datetime.now()+timedelta(1)
         date = datetime.date.today()
-        pay = Payment.objects.filter(paymentid=ids)
-        newamount = int(pay[0].amount+fine)*100
+        month = date.strftime("%B")
+        pay = Payment.objects.get(id=ids)
 
+        lastpay = Payment.objects.filter(student=pay.student,types="Fine").order_by('-id')
+
+        if lastpay:
+            if lastpay[0].month and amount!=0:
+                rpay= client.order.create({
+                    "amount": int(amount)*100,
+                    "currency": "INR",
+                    "partial_payment": True,
+                    "notes": {
+                        "Type": "Fine",
+                        "Student": pay.student.user.username,
+                    }
+                    })
+                        
+                newpay = Payment.objects.create(student=pay.student,totalamt=amount,amount=amount,types='Fine',status='Pending',month=month,expiry_date=next_day,paymentid=rpay['id'])
+          
+        elif amount!=0:
+            rpay= client.order.create({
+                "amount": int(amount)*100,
+                "currency": "INR",
+                "partial_payment": True,
+                "notes": {
+                    "Type": "Fine",
+                    "Student": pay.student.user.username,
+                }
+                })  
+            newpay = Payment.objects.create(student=pay.student,totalamt=amount,amount=amount,types='Fine',status='Pending',month=month,expiry_date=next_day,paymentid=rpay['id'])
+                
         if pay:
-            if pay[0].status == 'Expired':
-                if pay[0].paid == 0:
-                    pay[0].status = 'Pending'
-                    pay[0].expiry_date = next_day
-                    pay[0].save()
+            if pay.status == 'Expired':
+                if pay.paid == 0:
+                    pay.status = 'Pending'
+                    pay.expiry_date = next_day
+                    pay.save()
                 else:
-                    pay[0].status = 'Partially'
-                    pay[0].expiry_date = next_day
-                    pay[0].save()
+                    pay.status = 'Partially'
+                    pay.expiry_date = next_day
+                    pay.save()
                 return Response({'status':'Success'})
         else :
             return Response({'status':'Not Found'})

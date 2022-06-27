@@ -31,7 +31,9 @@ def getStudents(request):
 @permission_classes([IsAuthenticated])
 def getMyStudents(request):
     if request.user.is_staff:
-        students = Student.objects.filter(batch__advisor=request.user.advisor, status__in=["Training", "RequestedTermination"])
+        # students = Student.objects.filter(batch__advisor=request.user.advisor, status__in=["Training", "RequestedTermination"])
+        students = Student.objects.all()
+        print(students)
         for student in students:
             student.week = Manifest.objects.filter(student_name=student).order_by('-id')[0].title
             student.pending = Tasks.objects.filter(week=Manifest.objects.filter(student_name=student)[0], status=False).count()
@@ -57,8 +59,9 @@ def manageStudent(request):
     if request.user.is_lead:
         student = Student.objects.get(id=request.data['student'])
         student.batch = Batch.objects.get(id=request.data['batch'])
+        student.fee = request.data['fee']
+        student.domain = Domain.objects.get(id=request.data['domain'])
         student.save()
-        Profile.objects.filter(student=student).update(domain=Domain.objects.get(id=request.data['domain']))
         return Response({"message": "Student Updated"})
     else:
         return Response({"message": "You are not authorized to perform this action"})

@@ -8,6 +8,7 @@ urlpatterns = [
     path('pay', views.rentPayments, name='rentPayments'),
     path('upfrontpay', views.upfrontPayments, name='upfrontPayments'),
     path('shiftpay', views.shiftPayments, name='shiftPayments'),
+    path('FinePayments', views.FinePayments, name='FinePayments'),
     path('paying', views.paying, name='paying'),
     path('myPayments', views.myPayments, name='myPayments'),
     path('start_payment', views.start_payment, name='start_payment'),
