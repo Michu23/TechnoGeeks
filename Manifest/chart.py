@@ -38,7 +38,7 @@ def getChartdata(request):
                     ]},
             "type":"line"}]
         return Response(chartData)
-    elif request.user.is_staff:
+    elif request.user.is_staff and request.user.is_superuser == False:
         chartData = []
         advisor = request.user.advisor
         reviews = Review.objects.filter(advisor=advisor)
