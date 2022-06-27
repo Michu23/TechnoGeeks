@@ -72,7 +72,7 @@ def deleteLead(request):
     print(request.data['id'])
     if request.user.is_superuser:
         lead = Lead.objects.filter(id=request.data['id'])[0]
-        user = lead.user.delete()
+        lead.user.delete()
         lead.delete()
         return Response({"message": "Lead deleted successfully"})
     else:

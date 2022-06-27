@@ -2,7 +2,7 @@
 from rest_framework import serializers
 
 from .models import Student, Placement, Shifted
-from User.serializer import UserSerealizer, ProfileSerealizer
+from User.serializer import UserSerealizer, ProfileSerealizer, DomainSerealizer
 from Batch.serializer import BatchSerializer, GroupSerializer
 
 
@@ -11,6 +11,7 @@ class StudentSerializer(serializers.ModelSerializer):
     batch = BatchSerializer()
     group = GroupSerializer()
     profile = ProfileSerealizer()
+    domain = DomainSerealizer()
     class Meta:
         model = Student
         fields = '__all__'

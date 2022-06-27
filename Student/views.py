@@ -139,3 +139,13 @@ def terminateReject(request):
         return Response({"message": "Student Updated"})
     else:
         return Response({"message": "You are not authorized to perform this action"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def createPlacement(request):
+    if request.user.is_lead:
+        Student.objects.filter(id=request.data['student']).update(status="Placed")
+        Placement.objects.create(student=Student.objects.get(id=request.data['student']), company=request.data['name'], position=request.data['designation'], LPA=request.data['lpa'], location=request.data['location'], count=request.data['count'])
+        return Response({"message": "Student Updated"})
+    else:
+        return Response({"message": "You are not authorized to perform this action"})
