@@ -117,6 +117,13 @@ def getPendings(request):
     pending = Tasks.objects.filter(week__in=manifests, status=False)
     serializer = TasksSerealizer(pending, many=True).data
     return Response(serializer)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def deletePendings(request):
+    if request.user.is_staff or request.user.is_lead:
+        Tasks.objects.filter(id=request.data['id']).update(status=True)
+        return Response({'success': 'Task deleted'})
         
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -126,3 +133,15 @@ def folderSubmit(request):
         return Response({'success': 'Folder submitted'})
     else:
         return Response({'error': 'You are not allowed to perform this action'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def delete_task(request):
+    if request.user.is_staff:
+        Tasks.objects.filter(id=request.data['id']).delete()
+        return Response({'success': 'Task deleted'})
+    else:
+        return Response({'error': 'You are not allowed to perform this action'})
+
+        

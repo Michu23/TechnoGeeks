@@ -1,8 +1,10 @@
+import datetime
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from Admin.models import Advisor
 from Batch.models import Batch
+from Payment.models import Payment
 from User.models import Profile, Domain
 from .models import Shifted, Student, Placement
 from .serializer import ViewStudentSerializer, MyStudentSerializer, PlacementSerializer, TerminateRequestSerializer, ShiftRequestSerializer
@@ -104,14 +106,36 @@ def getRequests(request):
     else:
         return Response({"message": "You are not authorized to perform this action"})
 
+import razorpay
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def shiftAccept(request):
     if request.user.is_lead:
         shift = Shifted.objects.get(id=request.data['id'])
-        Student.objects.filter(id=shift.student.id).update(batch=Batch.objects.get(id=shift.shifted_to.id))
+        st = Student.objects.filter(id=shift.student.id)
+        amount= request.data['amount']
+        student = Student.objects.filter(id=shift.student.id).update(batch=Batch.objects.get(id=shift.shifted_to.id))
         shift.status = True
         shift.save()
+        client = razorpay.Client(auth=("rzp_test_KgiLdhTO6F4BS3", "XBUSNhYRLL2J6eODHO4aw18W"))
+        date = datetime.date.today()
+        month = date.strftime("%B")
+        expiry = date+datetime.timedelta(6)
+        print(st[0].user.username)
+
+        rpay= client.order.create({
+            "amount": int(amount)*100,
+            "currency": "INR",
+            "partial_payment": True,
+            "notes": {
+                "Type": "Shift payment",
+                "Student": st[0].user.username,
+            }
+            })
+                    
+        pay = Payment.objects.create(student=st[0],totalamt=amount,amount=amount,types='BatchShift',status='Pending',month=month,expiry_date=expiry,paymentid=rpay['id'])
+                
         return Response({"message": "Student Updated"})
     else:
         return Response({"message": "You are not authorized to perform this action"})

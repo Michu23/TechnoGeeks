@@ -98,7 +98,7 @@ def rentPayments(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def upfrontPayments(request):
-    if request.user.is_student:
+    if request.user.is_student and request.user.student.fee=="Upfront":
         date = datetime.datetime.today()
         date_2 = datetime.date.today()
         month = date.strftime("%B")
@@ -180,9 +180,10 @@ def shiftPayments(request):
             else:
                 pass
             if pay[0].status == 'Pending' or pay[0].status == 'Partially':
+
                 context = {
                     'id':pay[0].paymentid,
-                    'amount':pay[0].totalamt,
+                    'amount':pay[0].amount,
                     'type':pay[0].types,
                     'status':pay[0].status,
                     }
