@@ -2,12 +2,11 @@ import datetime
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from Admin.models import Advisor
 from Batch.models import Batch
 from Payment.models import Payment
-from User.models import Profile, Domain
-from .models import Shifted, Student, Placement
-from .serializer import ViewStudentSerializer, MyStudentSerializer, PlacementSerializer, TerminateRequestSerializer, ShiftRequestSerializer
+from User.models import Domain
+from .models import Shifted, Student, Placement, EducationDetails
+from .serializer import ViewStudentSerializer, MyStudentSerializer, PlacementSerializer, TerminateRequestSerializer, ShiftRequestSerializer, EducationSerializer
 from Manifest.models import Manifest, Tasks
 
 
@@ -172,7 +171,35 @@ def terminateReject(request):
 def createPlacement(request):
     if request.user.is_lead:
         Student.objects.filter(id=request.data['student']).update(status="Placed")
-        Placement.objects.create(student=Student.objects.get(id=request.data['student']), company=request.data['name'], position=request.data['designation'], LPA=request.data['lpa'], location=request.data['location'], count=request.data['count'])
+        Placement.objects.create(student=Student.objects.get(id=request.data['student']), company=request.data['name'], position=request.data['designation'], LPA=request.data['lpa'], location=request.data['location'], address=request.data['address'], count=request.data['count'])
         return Response({"message": "Student Updated"})
+    else:
+        return Response({"message": "You are not authorized to perform this action"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def updatePlacementProfile(request):
+    if request.user.is_lead:
+        print(request.data)
+        student = Student.objects.get(id=request.data['student'])
+        EducationDetails.objects.create(student=student, education=request.data['education'], stream = request.data['stream'], courses=request.data['courses'], backlogs=request.data['backlogs'], experience=request.data['experience'], company=request.data['company'], duration=request.data['duration'])
+        return Response({"message": "Student Updated"})
+    else:
+        return Response({"message": "You are not authorized to perform this action"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def getPlacement(request):
+    if request.user.is_lead:
+        student = Student.objects.get(id=request.data['student'])
+        if Placement.objects.filter(student=student).exists():
+            placement = PlacementSerializer(Placement.objects.get(student=student)).data
+        else:
+            placement = None
+        if EducationDetails.objects.filter(student=student).exists():
+            education = EducationSerializer(EducationDetails.objects.get(student=student)).data
+        else:
+            education = None
+        return Response({"placement": placement, "education": education})
     else:
         return Response({"message": "You are not authorized to perform this action"})

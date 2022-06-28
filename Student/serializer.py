@@ -1,7 +1,7 @@
 
 from rest_framework import serializers
 
-from .models import Student, Placement, Shifted
+from .models import Student, Placement, Shifted, EducationDetails
 from User.serializer import UserSerealizer, ProfileSerealizer, DomainSerealizer
 from Batch.serializer import BatchSerializer, GroupSerializer
 
@@ -20,6 +20,12 @@ class PlacementSerializer(serializers.ModelSerializer):
     student = StudentSerializer()
     class Meta:
         model = Placement
+        fields = '__all__'
+
+class EducationSerializer(serializers.ModelSerializer):
+    student = StudentSerializer()
+    class Meta:
+        model = EducationDetails
         fields = '__all__'
 
 class ShiftedSerializer(serializers.ModelSerializer):

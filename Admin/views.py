@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from Batch.models import Batch, Group
-from User.models import User
+from User.models import User, Department
 from .models import Advisor, Lead, Location, Reviewer, Code
 from .serializer import AdvisorFullSerealizer, AdvisorHalfSerializer, ReviewerSerializer, CodeSerializer, LeadSerealizer
 # Create your views here.
@@ -57,6 +57,7 @@ def deleteAdvisor(request):
 def createLead(request):
     if request.user.is_superuser:
         user = User.objects.create(username=request.data['username'], password=request.data['password'], email=request.data['email'])
+        user.department = Department.objects.get(name=request.data['staff'])
         user.is_staff = False
         user.is_lead = True
         user.save()

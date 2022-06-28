@@ -17,4 +17,6 @@ urlpatterns = [
     path('terminate/accept', views.terminateAccept, name='terminate_accept'),
     path('terminate/reject', views.terminateReject, name='terminate_reject'),
     path('create/placement', views.createPlacement, name='create_placement'),
+    path('update/placement', views.updatePlacementProfile, name='update_placement'),
+    path('view/placement', views.getPlacement, name='get_placement'),
 ]

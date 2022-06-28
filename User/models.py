@@ -27,7 +27,7 @@ class User(AbstractUser):
 
     def __str__(self):
         s = self.username 
-        return s
+        return s + ' ' + str(self.id)
 
 class Domain(models.Model):
     name = models.CharField(max_length=20)
