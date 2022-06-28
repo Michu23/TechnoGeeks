@@ -136,7 +136,7 @@ def getMyProfile(request):
             profile = ProfileSerealizer(Profile.objects.get(advisor=advisor.get(id=request.data['userId'])))
         else:
             user = student[0].user
-            profile = ProfileSerealizer(Profile.objects.get(student=student.get(id=request.data['userId'])))
+            profile = ProfileSerealizer(Profile.objects.get(student=student[0]))
     data = profile.data
     data['email'] = user.email
     return Response(data)
